@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<AMMModuleConfiguration xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+   <module name="physiology_engine" manufacturer="Vcom3D" model="BG-7.5.0" serial_number="0" module_version="1.2.0">
+      <capabilities>
+         <capability name="physiology_engine" required="true" enabled="true">
+            <published_topics>
+               <PhysiologyValue/>
+               <PhysiologyWaveForm/>
+               <RenderModification/>
+            </published_topics>
+            <subscribed_topics>
+               <Command/>
+               <SimulationControl/>
+               <PhysiologyModification/>
+            </subscribed_topics>
+            <configuration_data>
+               <data name="state_file" type="string" default="StandardMale@0s.xml"/>
+            </configuration_data>
+         </capability>
+      </capabilities>
+   </module>
+</AMMModuleConfiguration>

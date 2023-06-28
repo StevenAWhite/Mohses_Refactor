@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<AMMModuleConfiguration>
+   <capabilities>
+      <capability name="physiology_engine">
+         <configuration_data>
+            <data name="color" value="blue"/>
+         </configuration_data>
+      </capability>
+   </capabilities>
+</AMMModuleConfiguration>

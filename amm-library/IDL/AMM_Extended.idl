@@ -1,0 +1,20 @@
+module AMM
+        {
+                struct Tick {
+                    long long frame;
+                    float time;
+                };
+
+                struct InstrumentData
+                {
+                    string instrument;
+                    string<4096> payload;
+                };
+
+
+                struct Command
+                {
+                    string message;
+                };
+
+        };
