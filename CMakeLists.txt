@@ -4,7 +4,7 @@
 
 cmake_minimum_required(VERSION 3.20.0)
 
-project("AMM_Core_Modules")
+project("MoHSES System")
 
 
 set(VERSION_TYPE "release" CACHE STRING "version type" FORCE)
@@ -20,6 +20,13 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake)
 
 
+find_package(Doxygen QUIET)
+option (MOHSES_GENERATE_DOCS "Generate Doxygen based documentation files" ${Doxygen_Found})
+if (MOHSES_GENERATE_DOCS)
+   message(STATUS "Looking for Doxygen which is required when MOHSES_GENERATE_DOCS=ON")
+   find_package(Doxygen REQUIRED)
+endif()
+
 if (MSVC)
    if (CMAKE_SIZEOF_VOID_P MATCHES "8")
       set(CMAKE_INSTALL_PREFIX "C:/Program Files/${CMAKE_PROJECT_NAME}")
@@ -32,23 +39,8 @@ find_package(Threads)
 
 set(USE_FOLDERS TRUE)
 add_subdirectory(thirdparty)
-
-
-
-# if (amm_std_NOTFOUND)
-#    add_subdirectory(amm-library)
-# endif()
-
-# include_directories(${Boost_INCLUDE_DIRS})
-
-#add_subdirectory(module-manager)
-#add_subdirectory(physiology-manager)
-#add_subdirectory(simulation-manager)
-
-# if (NOT MSVC)
-# #   add_subdirectory(rest-adapter)
-# #   add_subdirectory(tcp-bridge)
-# endif()
+add_subdirectory(libraries)
+add_subdirectory(modules)
 
 # message(STATUS "")
 # message(STATUS "    == Final overview for ${PROJECT_NAME} ==")
