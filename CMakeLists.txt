@@ -2,7 +2,7 @@
 # CMake - CORE Modules meta-package - root
 #############################
 
-cmake_minimum_required(VERSION 3.20.0)
+cmake_minimum_required(VERSION 3.25.0)
 
 project("MoHSES System")
 

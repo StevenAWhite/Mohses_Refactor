@@ -30,15 +30,31 @@ function(gaurentee_foonathan_memory_availability)
         
         message(STATUS "${PROJECT_NAME} not found Fetching ${GIT_TAG}")            
         FetchContent_MakeAvailable(${PROJECT_NAME})
+
+            if (TARGET SQLite3)
+               message(FATAL_ERROR "WE HAVE A TARGET SQLite3")
+            endif()
+
+            if (TARGET SQLite::SQLite3)
+               message(FATAL_ERROR"WE HAVE A TARGET SQLite::SQLite3")
+            endif()
+
+
         if(NOT EXISTS ${CMAKE_FIND_PACKAGE_REDIRECTS_DIR}/${PROJECT_NAME}-extra.cmake AND
             NOT EXISTS ${CMAKE_FIND_PACKAGE_REDIRECTS_DIR}/${PROJECT_NAME}Extra.cmake)
+
+            
+
+            get_target_property(${PROJECT_PREFIX}_INCLUDE_DIR  ${PROJECT_NAME} INCLUDE_DIRECTORIES)
+            get_target_property(${PROJECT_PREFIX}_LIBRARIES  ${PROJECT_NAME} OUTPUT_NAME)
+
             file(WRITE ${CMAKE_FIND_PACKAGE_REDIRECTS_DIR}/${PROJECT_NAME}-extra.cmake                                
             "
                if(${PROJECT_PREFIX}_INCLUDE_DIR STREQUAL \"\" AND TARGET  ${PROJECT_NAME})
                  set(${PROJECT_PREFIX}_INCLUDE_DIR ${${PROJECT_PREFIX}_INCLUDE_DIR})
                endif()
                if(${PROJECT_PREFIX}_INCLUDE_DIRS} STREQUAL \"\" AND TARGET  ${PROJECT_NAME})
-                 set(${PROJECT_PREFIX}_INCLUDE_DIRS ${${PROJECT_PREFIX}_INCLUDE_DIR})
+                 set(${PROJECT_PREFIX}_INCLUDE_DIRS ${${PROJECT_PREFIX}_INCLUDE_DIRS})
                endif()
                if(${PROJECT_PREFIX}_LIBRARY_DEBUG} STREQUAL \"\" AND TARGET  ${PROJECT_NAME})
                  set(${PROJECT_PREFIX}_LIBRARY ${${PROJECT_PREFIX}_LIBRARY_DEBUG})
@@ -47,7 +63,7 @@ function(gaurentee_foonathan_memory_availability)
                  set(${PROJECT_PREFIX}_LIBRARY_RELEASE  ${${PROJECT_PREFIX}_LIBRARY_RELEASE})
                endif()
                if(${PROJECT_PREFIX}_LIBRARIES} STREQUAL \"\" AND TARGET  ${PROJECT_NAME})
-                 set(${PROJECT_PREFIX}_LIBRARIES  optimized ${${PROJECT_PREFIX}_LIBRARY_RELEASE} debug ${${PROJECT_PREFIX}_LIBRARY_DEBUG})
+                 set(${PROJECT_PREFIX}_LIBRARIES  ${PROJECT_PREFIX}_LIBRARIES )
                endif()
             ")
         endif()

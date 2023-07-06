@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.20.0)
+cmake_minimum_required(VERSION 3.25.0)
 
 include (FetchContent)
 
@@ -27,7 +27,6 @@ function(guarantee_sqlite3_availability)
             )
             message(STATUS "${PROJECT_NAME} not found Fetching 2.10")
           
-    
             FetchContent_MakeAvailable(${PROJECT_NAME})
             if(NOT EXISTS ${CMAKE_FIND_PACKAGE_REDIRECTS_DIR}/${PROJECT_NAME}-extra.cmake AND
             NOT EXISTS ${CMAKE_FIND_PACKAGE_REDIRECTS_DIR}/${PROJECT_NAME}Extra.cmake)
@@ -37,7 +36,7 @@ function(guarantee_sqlite3_availability)
                     set(${PROJECT_PREFIX}_INCLUDE_DIR ${${PROJECT_PREFIX}_INCLUDE_DIR})
                   endif()
                   if(\"\${${PROJECT_PREFIX}_INCLUDE_DIRS}\" STREQUAL \"\" AND TARGET  ${PROJECT_NAME})
-                    set(${PROJECT_PREFIX}_INCLUDE_DIRS ${${PROJECT_PREFIX}_INCLUDE_DIR})
+                    set(${PROJECT_PREFIX}_INCLUDE_DIRS ${${PROJECT_PREFIX}_INCLUDE_DIRS})
                   endif()
                   if(\"\${${PROJECT_PREFIX}_LIBRARY_DEBUG}\" STREQUAL \"\" AND TARGET  ${PROJECT_NAME})
                     set(${PROJECT_PREFIX}_LIBRARY ${${PROJECT_PREFIX}_LIBRARY_DEBUG})
@@ -46,10 +45,13 @@ function(guarantee_sqlite3_availability)
                     set(${PROJECT_PREFIX}_LIBRARY_RELEASE  ${${PROJECT_PREFIX}_LIBRARY_RELEASE})
                   endif()
                   if(\"\${${PROJECT_PREFIX}_LIBRARIES}\" STREQUAL \"\" AND TARGET  ${PROJECT_NAME})
-                    set(${PROJECT_PREFIX}_LIBRARIES  optimized ${${PROJECT_PREFIX}_LIBRARY_RELEASE} debug ${${PROJECT_PREFIX}_LIBRARY_DEBUG})
+                    set(${PROJECT_PREFIX}_LIBRARIES  ${SQLite3_LIBRARIES})
                   endif()
                ")
             endif()
+
+            add_library( SQLite::SQLite3 ALIAS SQLite3 )
+
             install(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME})  
             export(TARGETS  ${PROJECT_NAME} FILE ${PROJECT_NAME}-targets.cmake)
             if (BUILD_${PROJECT_NAME}_AVAILABILITY_TEST AND BUILD_THIRDPARTY_TEST)

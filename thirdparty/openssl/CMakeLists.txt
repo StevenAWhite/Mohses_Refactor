@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.20.0)
+cmake_minimum_required(VERSION 3.25.0)
 
 include (FetchContent)
 
@@ -60,6 +60,11 @@ function(guarantee_openssl_availability)
                 target_link_libraries(${PROJECT_NAME}_test PRIVATE ${PROJECT_NAME})            
             endif()
         endif()
+   elseif(NOT ${PROJECT_NAME}_FOUND AND MSVC)
+      message(STATUS "OpenSSL binaries are required for this build. Downloads are avaliable for Windows at Shining Light Productions.
+                      https://slproweb.com/products/Win32OpenSSL.html . The full development installation of OpenSSL v3.1.1 140MBs.
+                      Adjust CMAKE_PREFIX_PATH with the folder containing the instllation.")
+      find_package(OpenSSL REQUIRED)
    endif()
 
    if (${PROJECT_NAME}_REQUIRED AND NOT ${PROJECT_NAME}_FOUND)

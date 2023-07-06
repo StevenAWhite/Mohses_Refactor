@@ -50,14 +50,14 @@ target_link_libraries(
         net
         PUBLIC fastrtps
         PUBLIC fastcdr
-        Boost::algorithm
-        Boost::serialization
+        PUBLIC Boost::algorithm
+        PUBLIC Boost::serialization
 )
 
 target_include_directories(net PUBLIC ${PROJECT_SOURCE_DIR}/src)
 
 # Install plog
-install( TARGETS net EXPORT net)
+#install( TARGETS net EXPORT net)
 install(DIRECTORY "plog" # source directory
         DESTINATION "include" # target directory
         FILES_MATCHING # install only matched files
@@ -77,8 +77,8 @@ file(
       "
 )
 
-export(TARGETS net NAMESPACE mohses:: FILE "${CMAKE_CURRENT_BINARY_DIR}/netTargets.cmake")
-export(PACKAGE net)
+#export(TARGETS net NAMESPACE mohses:: FILE "${CMAKE_CURRENT_BINARY_DIR}/netTargets.cmake")
+#export(PACKAGE net)
 
 
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/netConfig.cmake" DESTINATION "lib/cmake/mohses")

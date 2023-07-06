@@ -22,13 +22,14 @@ function(guarantee_fastddr_availability)
     if ( NOT ${PROJECT_NAME}_FOUND )
         if (MOHSES_FETCH_THIRDPARTY)
             set(CMAKE_FOLDER "${CMAKE_FOLDER}/${PROJECT_NAME}")
+            set(THIRDPARTY_Asio "ON"  CACHE STRING "Controls ASIO being built by FASTRTPS")
             FetchContent_Declare(
                 ${PROJECT_NAME}
                 GIT_REPOSITORY ${GIT_REPOSITORY}
                 GIT_TAG ${GIT_TAG}
                 GIT_PROGRESS TRUE
                 OVERRIDE_FIND_PACKAGE  TRUE
-                CMAKE_ARGS -D THIRDPARTY_Asio="ON"
+                CMAKE_ARGS -D THIRDPARTY_Asio=ON
                            "-Wno-dev"
             )
 

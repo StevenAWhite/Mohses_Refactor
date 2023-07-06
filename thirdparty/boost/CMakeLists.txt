@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.20.0)
+cmake_minimum_required(VERSION 3.25.0)
 
 include(FetchContent)
 
@@ -17,7 +17,7 @@ find_package(Boost QUIET)
     option(MOHSES_FETCH_THIRDPARTY "This option will try to fetch third party dependencies for building" ON)
     if ( NOT Boost_FOUND)
         if (MOHSES_FETCH_THIRDPARTY)
-            set(${PROJECT_PREFIX}_INCLUDE_LIBRARIES math filesystem serialization system archive program_options lambda)
+            set(${PROJECT_PREFIX}_INCLUDE_LIBRARIES archive filesystem lambda math program_options serialization system uuid)
             set(${PROJECT_PREFIX}_ENABLE_CMAKE ON)
             set(CMAKE_FOLDER "${CMAKE_FOLDER}/Boost")
             FetchContent_Declare(
