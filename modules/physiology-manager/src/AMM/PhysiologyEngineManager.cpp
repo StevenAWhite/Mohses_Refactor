@@ -4,6 +4,12 @@ using namespace std;
 using namespace std::chrono;
 using namespace tinyxml2;
 
+#ifdef _MSC_VER
+// not #if defined(_WIN32) || defined(_WIN64) because we have strncasecmp in mingw
+#define strncasecmp _strnicmp
+#define strcasecmp _stricmp
+#endif
+
 std::string get_filename_date(void)
 {
   time_t now;
