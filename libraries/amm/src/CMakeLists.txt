@@ -40,7 +40,7 @@ else ()
             LIBRARY DESTINATION "lib"
             PUBLIC_HEADER DESTINATION "include/amm")
 endif ()
-set_target_properties(net PROPERTIES FOLDER libraries)
+set_target_properties(net PROPERTIES FOLDER ${CMAKE_FOLDER}/libraries)
 
 add_library(mohses::net ALIAS net)
 

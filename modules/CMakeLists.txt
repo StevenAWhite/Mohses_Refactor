@@ -1,3 +1,10 @@
 cmake_minimum_required(VERSION 3.25.0)
 
+set(_CMAKE_FOLDER ${CMAKE_FOLDER})
+set(CMAKE_FOLDER Mohses)
 add_subdirectory(module-manager)
+add_subdirectory(rest-adapter)
+add_subdirectory(simulation-manager)
+add_subdirectory(tcp-bridge)
+# add_subdirectory(physiology-manager)
+set(CMAKE_FOLDER ${_CMAKE_FOLDER})

@@ -6,6 +6,8 @@ function(guarantee_fastddr_availability)
     set( GIT_REPOSITORY  https://github.com/eProsima/Fast-DDS.git)
     set( GIT_TAG v2.10.0)
     set( PROJECT_NAME  fastrtps)
+    set( EXPORT_NAME    eProsima::fastrtps)
+    set( EXPORT_NAME2   eProsima::fastdds)
     set( PROJECT_PREFIX FASTRTPS)
 
     if (BUILD_THIRDPARTY_TEST)
@@ -74,6 +76,12 @@ function(guarantee_fastddr_availability)
         https://cmake.org/cmake/help/latest/command/find_package.html#command:find_package")
     endif()
 
+    if (TARGET ${PROJECT_NAME} AND NOT TARGET ${EXPORT_NAME})
+      add_library(${EXPORT_NAME} ALIAS ${PROJECT_NAME})
+    endif()
+    if (TARGET ${PROJECT_NAME} AND NOT TARGET ${EXPORT_NAME2})
+      add_library(${EXPORT_NAME2} ALIAS ${PROJECT_NAME})
+    endif()
 
 endfunction()
 

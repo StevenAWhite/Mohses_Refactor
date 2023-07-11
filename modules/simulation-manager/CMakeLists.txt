@@ -1,76 +1,52 @@
 #############################
-# CMake - Test Module - root
+# CMake Mod Manager root/
 #############################
 
-cmake_minimum_required(VERSION 3.5.1)
+cmake_minimum_required(VERSION 3.25)
 
-project("AMM_Simulation_Manager")
+if( CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR )
+        SET (MOHSES_BUILD_SIMULATION_MANAGER ON)
+else()
+  option(MOHSES_BUILD_SIMULATION_MANAGER "Toggle building of Mohses Module Manager" ON)
+endif()
 
-set(VERSION_TYPE "beta" CACHE STRING "version type" FORCE)
-set(PROJECT_VERSION_MAJOR 1)
-set(PROJECT_VERSION_MINOR 1)
-set(PROJECT_VERSION_PATCH 0)
-site_name(VERSION_HOST) # read hostname to VERSION_HOST
-set(VERSION_HOST "${VERSION_HOST}" CACHE STRING "host of build" FORCE)
+if (MOHSES_BUILD_SIMULATION_MANAGER)
+        project("MOSHES Module Manager")
 
-set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+        set(PROJECT_VERSION_MAJOR 1)
+        set(PROJECT_VERSION_MINOR 0)
+        set(PROJECT_VERSION_PATCH 0)
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake)
-include(Packing)
+        site_name(VERSION_HOST) # read hostname to VERSION_HOST
+        
+        set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+        set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/bin)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/bin)
+        #############################
+        # CMake Mod Manager root/src
+        #############################
+
+        
+        set(SIMULATION_MANAGER_SOURCES src/SimManager.cpp src/SimulationManager.cpp)
 
 
-if (MSVC)
-    add_compile_options(/std:c++14 /W3)
-    add_definitions(-DNOMINMAX)
-    add_definitions(-DWIN32_LEAN_AND_MEAN)
-    add_definitions(-DBOOST_ALL_NO_LIB)
-    add_definitions(-DBOOST_ALL_DYN_LINK)
-    add_definitions(-DBOOST_UUID_FORCE_AUTO_LINK)
-    add_definitions(-DBOOST_DATE_TIME_STATIC_LIB)
-    add_definitions(-D_WIN32_WINNT=0x0A00)
-    set(Boost_DETAILED_FAILURE_MSG ON)
-    set(Boost_THREADAPI win32)
-    set(Boost_USE_STATIC_LIBS ON)
-    set(Boost_USE_DEBUG_LIBS OFF)
-    set(Boost_USE_RELEASE_LIBS ON)
-    set(Boost_USE_MULTITHREADED ON)
-    set(Boost_USE_STATIC_RUNTIME OFF)
-    if (CMAKE_SIZEOF_VOID_P MATCHES "8")
-        set(CMAKE_INSTALL_PREFIX "C:/Program Files/${CMAKE_PROJECT_NAME}")
-    else ()
-        set(CMAKE_INSTALL_PREFIX "C:/Program Files (x86)/${CMAKE_PROJECT_NAME}")
-    endif ()
-else ()
-    add_compile_options(-std=c++14)
-    add_compile_options(-O0)
-    set(Boost_USE_STATIC_LIBS OFF)
-    set(Boost_USE_MULTITHREADED ON)
-endif ()
+        add_executable(mohses_simulation_manager ${SIMULATION_MANAGER_SOURCES})
+        add_executable(Mohses::simulation_manager ALIAS mohses_simulation_manager)
 
-find_package(Boost REQUIRED)
-find_package(Threads REQUIRED)
-find_package(fastcdr REQUIRED)
-find_package(fastrtps REQUIRED)
-find_package(amm_std REQUIRED)
+        message(STATUS "Loading Mohses::simulation_manager")
 
-include_directories(${Boost_INCLUDE_DIRS})
+        target_link_libraries(mohses_simulation_manager
+                PUBLIC 
+                mohses::net
+                SQLite::SQLite3
+                tinyxml2::tinyxml2
+                Boost::headers
+                Boost::uuid
+                )
+        set_target_properties(mohses_simulation_manager PROPERTIES FOLDER ${CMAKE_FOLDER}/modules) 
 
-add_subdirectory(src)
+        install(TARGETS mohses_simulation_manager RUNTIME DESTINATION bin)
+        install(DIRECTORY ../config DESTINATION bin)
 
-   file(COPY config DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
-
-message(STATUS "")
-message(STATUS "    == Final overview for ${PROJECT_NAME} ==")
-message(STATUS "Version:              ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH} ${VERSION_TYPE} @ ${VERSION_HOST}")
-message(STATUS "Install prefix:       ${CMAKE_INSTALL_PREFIX}")
-message(STATUS "Output:               ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
-message(STATUS "Compiler:             ${CMAKE_CXX_COMPILER}")
-message(STATUS "CMAKE_BUILD_TYPE:     ${CMAKE_BUILD_TYPE}")
-message(STATUS "")
+        file(COPY config DESTINATION bin/)
+endif(MOHSES_BUILD_SIMULATION_MANAGER)

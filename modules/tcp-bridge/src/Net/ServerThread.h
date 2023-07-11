@@ -7,17 +7,21 @@
 #include <map>
 
 #include <cstdlib>
-#include <pthread.h>
-#include <unistd.h>
 
+#include <thread>
+
+#ifdef WIN32
+   #include <thread>
+   #include <mutex>
+#endif
 using namespace std;
 
 class ServerThread {
 public:
-    pthread_t tid;
+    std::thread tid;
 
 private:
-    static pthread_mutex_t mutex;
+    static std::mutex mutex;
 
 public:
     ServerThread();

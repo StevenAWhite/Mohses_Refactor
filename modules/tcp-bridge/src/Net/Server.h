@@ -10,9 +10,14 @@
 #include <cstdlib>
 #include <cstring>
 
-#include <netinet/in.h>
-#include <netinet/tcp.h>
-#include <sys/socket.h>
+#ifdef WIN32
+   #define NOMINMAX
+   #include <WinSock2.h>
+#else
+   #include <netinet/in.h>
+   #include <netinet/tcp.h>
+   #include <sys/socket.h>
+#endif
 
 #include "Client.h"
 #include "ServerThread.h"

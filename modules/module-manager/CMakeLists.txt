@@ -4,37 +4,47 @@
 
 cmake_minimum_required(VERSION 3.25)
 
-project("MOSHES Module Manager")
+if( CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR )
+        SET (MOHSES_BUILD_MODULE_MANAGER ON)
+else()
+  option(MOHSES_BUILD_MODULE_MANAGER "Toggle building of Mohses Module Manager" ON)
+endif()
 
-set(VERSION_TYPE "beta" CACHE STRING "version type" FORCE)
-set(PROJECT_VERSION_MAJOR 1)
-set(PROJECT_VERSION_MINOR 2)
-set(PROJECT_VERSION_PATCH 0)
-site_name(VERSION_HOST) # read hostname to VERSION_HOST
-set(VERSION_HOST "${VERSION_HOST}" CACHE STRING "host of build" FORCE)
+if (MOHSES_BUILD_MODULE_MANAGER)
+        project("MOSHES Module Manager")
 
-set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+        set(PROJECT_VERSION_MAJOR 1)
+        set(PROJECT_VERSION_MINOR 0)
+        set(PROJECT_VERSION_PATCH 0)
 
-#############################
-# CMake Mod Manager root/src
-#############################
+        site_name(VERSION_HOST) # read hostname to VERSION_HOST
+        
+        set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+        set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-set(MODULE_MANAGER_SOURCES src/ModuleManagerMain.cpp src/ModuleManager.cpp)
+        #############################
+        # CMake Mod Manager root/src
+        #############################
 
-add_executable(mohses_module_manager ${MODULE_MANAGER_SOURCES})
-add_executable(Mohses::module_manager ALIAS mohses_module_manager)
-target_link_libraries(mohses_module_manager
-        PUBLIC 
-        mohses::net
-        SQLite::SQLite3
-        tinyxml2::tinyxml2
-        Boost::headers
-        Boost::uuid
-        )
-set_target_properties(mohses_module_manager PROPERTIES FOLDER modules) 
+        set(MODULE_MANAGER_SOURCES src/ModuleManagerMain.cpp src/ModuleManager.cpp)
 
-install(TARGETS mohses_module_manager RUNTIME DESTINATION bin)
-install(DIRECTORY ../config DESTINATION bin)
+        add_executable(mohses_module_manager ${MODULE_MANAGER_SOURCES})
+        add_executable(Mohses::module_manager ALIAS mohses_module_manager)
 
-file(COPY config DESTINATION bin/)
+        message(STATUS "Loading Mohses::module_manager")
+
+        target_link_libraries(mohses_module_manager
+                PUBLIC 
+                mohses::net
+                SQLite::SQLite3
+                tinyxml2::tinyxml2
+                Boost::headers
+                Boost::uuid
+                )
+        set_target_properties(mohses_module_manager PROPERTIES FOLDER ${CMAKE_FOLDER}/modules) 
+
+        install(TARGETS mohses_module_manager RUNTIME DESTINATION bin)
+        install(DIRECTORY ../config DESTINATION bin)
+
+        file(COPY config DESTINATION bin/)
+endif(MOHSES_BUILD_MODULE_MANAGER)

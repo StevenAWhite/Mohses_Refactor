@@ -15,12 +15,12 @@ add_executable(amm_tcp_bridge ${TCP_BRIDGE_MODULE_SOURCES})
 
 target_link_libraries(
    amm_tcp_bridge
-        PUBLIC amm_std
-        PUBLIC boost_system
-        PUBLIC boost_thread
-		pthread
-		boost_program_options
-	tinyxml2
+        PUBLIC mohses::net
+        PUBLIC boost::system
+        PUBLIC boost::thread
+		thread::thread
+		boost::program_options
+	tinyxml2:tinyxml2
 )
 
 install(TARGETS amm_tcp_bridge RUNTIME DESTINATION bin)

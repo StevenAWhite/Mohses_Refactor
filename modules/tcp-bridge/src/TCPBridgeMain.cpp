@@ -22,6 +22,8 @@ using namespace std::chrono;
 using namespace eprosima::fastdds::dds;
 using namespace eprosima::fastrtps::rtps;
 
+using  ssize_t = SSIZE_T;
+
 Server *s;
 
 std::map <std::string, std::string> clientMap;
@@ -487,6 +489,7 @@ void *Server::HandleClient(void *args) {
         }
     }
 
+    return nullptr;
 }
 
 void UdpDiscoveryThread(short port, bool enabled, std::string manikin_id) {

@@ -4,85 +4,79 @@
 
 cmake_minimum_required(VERSION 3.5.1)
 
-project("AMM_TCP_Bridge_Module")
+#set(CMAKE_CXX_STANDARD 20)
+#set(CMAKE_CXX_STANDARD_REQUIRED ON)
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++2a")
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake)
+#############################
+# CMake - TCP BRIDGE - root
+#############################
 
-set(VERSION_TYPE "beta" CACHE STRING "version type" FORCE)
-set(PROJECT_VERSION_MAJOR 1)
-set(PROJECT_VERSION_MINOR 2)
-set(PROJECT_VERSION_PATCH 0)
-site_name(VERSION_HOST) # read hostname to VERSION_HOST
-set(VERSION_HOST "${VERSION_HOST}" CACHE STRING "host of build" FORCE)
+cmake_minimum_required(VERSION 3.25)
 
-set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+if( CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR )
+        SET (MOHSES_BUILD_TCP_BRIDGE ON)
+else()
+  option(MOHSES_BUILD_TCP_BRIDGE "Toggle building of Mohses Module Manager" ON)
+endif()
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake)
+if (MOHSES_BUILD_TCP_BRIDGE)
 
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/bin)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/bin)
+    project("MOHSES Rest Adapter")
 
-if (MSVC)
-    add_compile_options(/W3)
-    add_definitions(-DNOMINMAX)
-    add_definitions(-DWIN32_LEAN_AND_MEAN)
-    add_definitions(-DBOOST_ALL_NO_LIB)
-    add_definitions(-DBOOST_ALL_DYN_LINK)
-    add_definitions(-DBOOST_UUID_FORCE_AUTO_LINK)
-    add_definitions(-DBOOST_DATE_TIME_STATIC_LIB)
-    add_definitions(-D_WIN32_WINNT=0x0A00)
-    add_definitions(-D_DEBUG)
-    add_definitions(-D_ITERATOR_DEBUG_LEVEL=2)
-    #set(Boost_NO_SYSTEM_PATHS true)
-    set(Boost_DETAILED_FAILURE_MSG ON)
-    set(Boost_THREADAPI win32)
-    set(Boost_USE_STATIC_LIBS ON)
-    set(Boost_USE_DEBUG_LIBS ON)
-    set(Boost_USE_RELEASE_LIBS ON)
-    set(Boost_USE_MULTITHREADED ON)
-    set(Boost_USE_STATIC_RUNTIME OFF)
-    if (CMAKE_SIZEOF_VOID_P MATCHES "8")
-        set(CMAKE_INSTALL_PREFIX "C:/Program Files/${CMAKE_PROJECT_NAME}")
-    else ()
-        set(CMAKE_INSTALL_PREFIX "C:/Program Files (x86)/${CMAKE_PROJECT_NAME}")
-    endif ()
-else ()
-    add_compile_options(-O0)
-endif ()
+    set(PROJECT_VERSION_MAJOR 1)
+    set(PROJECT_VERSION_MINOR 0)
+    set(PROJECT_VERSION_PATCH 0)
 
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++2a")
+    site_name(VERSION_HOST) # read hostname to VERSION_HOST
 
-FIND_PACKAGE(Boost 1.67.0 REQUIRED COMPONENTS system thread)
+    set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+    set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-if (MSVC)
-    find_package(TinyXML2 REQUIRED NO_SYSTEM_ENVIRONMENT_PATH)
-else ()
-    find_package(TinyXML2 REQUIRED)
-endif ()
+    set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake)
+    include(Packing)
+    #############################
+    # CMake Mod Manager root/src
+    #############################
 
-find_package(amm_std REQUIRED)
+    set(TCP_BRIDGE_MODULE_SOURCES
+        src/TCPBridgeMain.cpp
+        src/Net/Client.cpp
+        src/Net/Server.cpp
+        src/Net/ServerThread.cpp
+        src/Net/UdpDiscoveryServer.cpp
+        src/Manikin.cpp
+        src/TPMS.cpp
+        src/bridge.cpp)
 
-include_directories(${Boost_INCLUDE_DIRS})
-include_directories(${TinyXML2_INCLUDE_DIRS})
 
-add_subdirectory(src)
+    add_executable(mohses_tcp_bridge ${TCP_BRIDGE_MODULE_SOURCES})
+    add_executable(Mohses::tcp_bridge ALIAS mohses_tcp_bridge)
 
-file(COPY config DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+    message(STATUS "Loading Mohses::tcp_bridge")
 
-message(STATUS "")
-message(STATUS "    == Final overview for ${PROJECT_NAME} ==")
-message(STATUS "Version:              ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH} ${VERSION_TYPE} @ ${VERSION_HOST}")
-message(STATUS "Install prefix:       ${CMAKE_INSTALL_PREFIX}")
-message(STATUS "Output:               ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
-message(STATUS "Compiler:             ${CMAKE_CXX_COMPILER}")
-message(STATUS "CMAKE_BUILD_TYPE:     ${CMAKE_BUILD_TYPE}")
-message(STATUS "")
+    find_package(Threads)
 
-include(Packing)
+    target_link_libraries(mohses_tcp_bridge
+            PUBLIC 
+            mohses::net
+            tinyxml2::tinyxml2
+            Boost::system
+            Boost::thread
+            Boost::program_options
+            Boost::process
+            Boost::uuid
+            Boost::assign
+            Boost::foreach
+            Boost::asio
+            Boost::headers
+            Threads::Threads
+            )
+    set_target_properties(mohses_tcp_bridge PROPERTIES FOLDER ${CMAKE_FOLDER}/modules) 
 
+    install(TARGETS mohses_tcp_bridge RUNTIME DESTINATION bin)
+    install(DIRECTORY ../config DESTINATION bin)
+
+    file(COPY config DESTINATION bin/)
+
+endif(MOHSES_BUILD_TCP_BRIDGE)

@@ -1,5 +1,12 @@
 #include "Server.h"
 
+#ifdef WIN32
+   #define NOMINMAX
+   #include <ws2tcpip.h>
+   #include <BaseTsd.h>
+   using  ssize_t = SSIZE_T;
+#endif
+
 using namespace std;
 
 vector<Client> Server::clients;
@@ -10,7 +17,11 @@ Server::Server(int port) {
     ServerThread::InitMutex();
 
     // For setsock opt (REUSEADDR)
+#ifdef WIN32
+    const char yes = 0x01;
+#else
     int yes = 1;
+#endif
     m_runThread = true;
 
     // Init serverSock and start listen()'ing
