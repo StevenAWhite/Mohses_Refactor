@@ -4,7 +4,7 @@ include(FetchContent)
 
 function(guarantee_BioGears_availability)
     set(GIT_REPOSITORY https://github.com/BioGearsEngine/core.git)
-    set(GIT_TAG 84af050)
+    set(GIT_TAG trunk)
 
     set(PROJECT_NAME BioGears)
     set(PROJECT_PREFIX BioGears)

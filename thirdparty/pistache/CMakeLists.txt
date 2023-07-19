@@ -21,6 +21,7 @@ function(guarantee_Pistache_availability)
     if ( NOT ${PROJECT_NAME}_FOUND )
         if (MOHSES_FETCH_THIRDPARTY)
 
+            set(PISTACHE_BUILD_TESTS OFF CACHE INTERNAL "DO not build PISTACHE TEST" )
             set(CMAKE_FOLDER "${CMAKE_FOLDER}/${PROJECT_NAME}")
             FetchContent_Declare(
                 ${PROJECT_NAME}
@@ -58,8 +59,8 @@ function(guarantee_Pistache_availability)
 
             if (BUILD_${PROJECT_NAME}_AVAILABILITY_TEST AND BUILD_THIRDPARTY_TEST)
                 add_executable(${PROJECT_NAME}_test ${CMAKE_CURRENT_SOURCE_DIR}/tests/${PROJECT_NAME}.cpp )
-                set_target_properties(${PROJECT_NAME}_test PROPERTIES FOLDER "${CMAKE_FOLDER}/Tests")
-                target_link_libraries(${PROJECT_NAME}_test PRIVATE ${PROJECT_EXPORT} )            
+                set_target_properties(${PROJECT_NAME}_test PROPERTIES FOLDER "${CMAKE_FOLDER}/Tests" CXX_STANDARD 20)
+                target_link_libraries(${PROJECT_NAME}_test PRIVATE ${PROJECT_EXPORT2} )            
             endif()
         endif()
     endif()

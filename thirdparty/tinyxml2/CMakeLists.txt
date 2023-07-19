@@ -15,7 +15,7 @@ function(guarantee_TinyXML2_availability)
         option(BUILD_${PACKAGE_NAME}_AVAILABILITY_TEST "Build ${PACKAGE_NAME} sample project for testing" ON)
     endif()
     cmake_parse_arguments("${PACKAGE_NAME}" "REQUIRED" "" ""  ${ARGN})
-    find_package(${PACKAGE_NAME} QUIET)
+    find_package(${PACKAGE_NAME} CONFIG QUIET)
     Set(FETCHCONTENT_QUIET FALSE)
     option(MOHSES_FETCH_THIRDPARTY "This option will try to fetch third party dependencies for building" ON)
     if ( NOT ${PACKAGE_NAME}_FOUND )
@@ -75,13 +75,47 @@ function(guarantee_TinyXML2_availability)
              "
              )
 
+            find_path(${PACKAGE_PREFIX}_INCLUDE_DIR  NAMES tinyxml2.h HINTS ${${FETCH_NAME}_SOURCE_DIR}  NO_DEFAULT_PATHS)
+            find_library(${PACKAGE_PREFIX}_LIBRARY_RELEASE 
+                   NAMES tinyxml2
+                   PATHS ${${FETCH_NAME}_BINARY_DIR}
+                   NO_DEFAULT_PATHS)
+            find_library(${PACKAGE_PREFIX}_LIBRARY_DEBUG 
+                   NAMES tinyxml2d tinyxml2
+                   PATHS ${${FETCH_NAME}_BINARY_DIR}
+                   NO_DEFAULT_PATHS)
+            include(FindPackageHandleStandardArgs)
+            FIND_PACKAGE_HANDLE_STANDARD_ARGS(${PACKAGE_NAME}
+                                  REQUIRED_VARS ${PACKAGE_PREFIX}_INCLUDE_DIR
+                                                ${PACKAGE_PREFIX}_LIBRARY_RELEASE
+                                                ${PACKAGE_PREFIX}_LIBRARY_DEBUG
              
-            if (BUILD_${PACKAGE_NAME}_AVAILABILITY_TEST AND BUILD_THIRDPARTY_TEST)
+            )
+            if(TINYXML2_FOUND)
+               set(TINYXML2_LIBRARY "${PACKAGE_EXPORT}" CACHE INTERNAL "The Lirbraries of Tinyxml2" FORCE)
+            endif()
+            message(STATUS "Testing if (NOT TARGET ${PACKAGE_EXPORT})")
+            if (NOT TARGET ${PACKAGE_EXPORT})
+                message(STATUS "EXPORTING ${PACKAGE_EXPORT}")
+                add_library(${PACKAGE_EXPORT} INTERFACE IMPORTED GLOBAL)
+                
+                set_target_properties(${PACKAGE_EXPORT}
+                PROPERTIES
+                INTERFACE_INCLUDE_DIRECTORIES
+                ${${FETCH_NAME}_SOURCE_DIR}
+                )
+                target_include_directories(${PACKAGE_EXPORT} INTERFACE $<INSTALL_INTERFACE:include> INTERFACE $<BUILD_INTERFACE:${${FETCH_NAME}_SOURCE_DIR}>)
+                target_link_libraries(${PACKAGE_EXPORT} INTERFACE ${PACKAGE_NAME})
+           endif()
+           if (BUILD_${PACKAGE_NAME}_AVAILABILITY_TEST AND BUILD_THIRDPARTY_TEST)
                 add_executable(${PACKAGE_NAME}_test ${CMAKE_CURRENT_SOURCE_DIR}/tests/${PACKAGE_NAME}.cpp )
                 set_target_properties(${PACKAGE_NAME}_test PROPERTIES FOLDER "${CMAKE_FOLDER}/Tests")
                 target_link_libraries(${PACKAGE_NAME}_test PRIVATE ${PACKAGE_EXPORT} )            
-            endif()
+           endif()
         endif()
+
+    else()
+      message(STATUS "Found ${PACKAGE_NAME} by find_package")
     endif()
 
     if (${PACKAGE_NAME}_REQUIRED AND NOT ${PACKAGE_NAME}_FOUND)

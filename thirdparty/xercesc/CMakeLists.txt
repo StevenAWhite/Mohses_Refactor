@@ -79,7 +79,7 @@ function(guarantee_Xerces_availability)
                 INTERFACE_INCLUDE_DIRECTORIES
                 ${${FETCH_NAME}_SOURCE_DIR}
                 )
-                target_include_directories(${PACKAGE_EXPORT} INTERFACE $<INSTALL_INTERFACE:include> $<BUILD_INTERFACE:${${FETCH_NAME}_SOURCE_DIR}/src> $<BUILD_INTERFACE:${${FETCH_NAME}_BINARY_DIR}/src>) 
+                target_include_directories(${PACKAGE_EXPORT} INTERFACE  $<INSTALL_INTERFACE:include> INTERFACE $<BUILD_INTERFACE:${${FETCH_NAME}_SOURCE_DIR}/src> INTERFACE $<BUILD_INTERFACE:${${FETCH_NAME}_BINARY_DIR}/src>) 
                 target_link_libraries(${PACKAGE_EXPORT} INTERFACE xerces-c)
               endif()
         endif()

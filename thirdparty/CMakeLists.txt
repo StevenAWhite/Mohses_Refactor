@@ -12,8 +12,8 @@ add_subdirectory(sqlite3)
 add_subdirectory(fastcdr)
 add_subdirectory(fastddr)
 
-add_subdirectory(xercesc)
 add_subdirectory(eigen3)
+add_subdirectory(xercesc)
 add_subdirectory(xsd)
 add_subdirectory(biogears)
 

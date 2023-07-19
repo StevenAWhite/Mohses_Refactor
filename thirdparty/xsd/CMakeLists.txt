@@ -4,7 +4,7 @@ include(FetchContent)
 
 function(guarantee_CodeSynthesis_availability)
     set(GIT_REPOSITORY https://github.com/StevenAWhite/CodeSynthesisXSD-Binary.git)
-    set(GIT_TAG master)
+    set(GIT_TAG 39f8501)
 
 
     set(PACKAGE_NAME CodeSynthesis)
@@ -18,7 +18,7 @@ function(guarantee_CodeSynthesis_availability)
     cmake_parse_arguments("${PACKAGE_NAME}" "REQUIRED" "" ""  ${ARGN})
     find_package(${PACKAGE_NAME} QUIET)
     Set(FETCHCONTENT_QUIET FALSE)
-    option(MOHSES_FETCH_THIRDPARTY "This option will try t  o fetch third party dependencies for building" ON)
+    option(MOHSES_FETCH_THIRDPARTY "This option will try to fetch third party dependencies for building" ON)
     if ( NOT ${PACKAGE_NAME}_FOUND )
         if (MOHSES_FETCH_THIRDPARTY)
 
@@ -28,6 +28,7 @@ function(guarantee_CodeSynthesis_availability)
                 GIT_REPOSITORY ${GIT_REPOSITORY} 
                 GIT_TAG ${GIT_TAG}
                 GIT_PROGRESS TRUE
+                DOWNLOAD_EXTRACT_TIMESTAMP TRUE
                 VERRIDE_FIND_PACKAGE  TRUE
                 CXX_STANDARD 20
             )
@@ -40,13 +41,25 @@ function(guarantee_CodeSynthesis_availability)
               set(${PACKAGE_NAME}_EXECUTABLE  ${${FETCH_NAME}_SOURCE_DIR}/x86_64-windows-msvc/bin/xsd.exe CACHE PATH "XSD Compiler to use for code generation" )
               set(${PACKAGE_NAME}_DIR   ${${FETCH_NAME}_SOURCE_DIR}/x86_64-windows-msvc/ CACHE PATH "DIR which contains cmake files" )
             else()
-              set(${PACKAGE_NAME}_INCLUDE_DIR ${${FETCH_NAME}_SOURCE_DIR}/x86_64-linux-gnu/libxsd)
-              set(${PACKAGE_NAME}_EXECUTABLE  ${${FETCH_NAME}_SOURCE_DIR}/x86_64-linux-gnu/bin/xsd)
-              set(${PACKAGE_NAME}_DIR  ${${FETCH_NAME}_SOURCE_DIR}/x86_64-linux-gnu/)
+             find_path(${PACKAGE_NAME}_DIR NAMES libxsd PATHS ${${FETCH_NAME}_SOURCE_DIR}/x86_64-linux-gnu/ NO_DEFAULT_PATH)
+             find_file(${PACKAGE_NAME}_EXECUTABLE  NAMES xsd PATHS ${${FETCH_NAME}_SOURCE_DIR}/x86_64-linux-gnu/bin/ NO_DEFAULT_PATH)
+             find_path(${PACKAGE_NAME}_INCLUDE_DIR  NAMES "xsd/cxx/config.hxx"  PATHS ${${FETCH_NAME}_SOURCE_DIR}/x86_64-linux-gnu/libxsd NO_DEFAULT_PATH)
             endif()
+
             mark_as_advanced(CodeSynthesis_DIR)
             set(CodeSynthesis_FOUND TRUE CACHE INTERNAL "CodeSynthesis HAS BEN FOUND !"   FORCE)
-        endif()
+            if (NOT TARGET ${PACKAGE_EXPORT})
+                add_library(${PACKAGE_EXPORT} INTERFACE IMPORTED GLOBAL)
+                
+                set_target_properties(${PACKAGE_EXPORT}
+                PROPERTIES
+                INTERFACE_INCLUDE_DIRECTORIES
+                ${${FETCH_NAME}_SOURCE_DIR}
+                )
+                target_include_directories(${PACKAGE_EXPORT} INTERFACE $<INSTALL_INTERFACE:include> $<BUILD_INTERFACE:${${PACKAGE_NAME}_INCLUDE_DIR}> )
+                target_link_libraries(${PACKAGE_EXPORT} INTERFACE Xerces::xerces)
+           endif()
+      endif()
     endif()
 
     if (${PACKAGE_NAME}_REQUIRED AND NOT ${PACKAGE_NAME}_FOUND)

@@ -25,7 +25,7 @@ function(guarantee_Eigen3_availability)
             set(CMAKE_CXX_STANDARD_REQUIRED ON)
             set(CMAKE_CXX_EXTENSIONS OFF)
 
-            set(BUILD_TESTING OFF CACHE  INTERNAL"Build Eigen Testing Files" FORCE)
+	          set(BUILD_TESTING OFF CACHE INTERNAL "Build Eigen Testing Files" FORCE)
             set(EIGEN_BUILD_DOCS OFF CACHE INTERNAL "Build Eigen Documents" FORCE)
             FetchContent_Declare(
                 ${PROJECT_NAME}
