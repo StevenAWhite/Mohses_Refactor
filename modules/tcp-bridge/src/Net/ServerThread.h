@@ -8,12 +8,10 @@
 
 #include <cstdlib>
 
-#include <thread>
 
-#ifdef WIN32
-   #include <thread>
-   #include <mutex>
-#endif
+#include <thread>
+#include <mutex>
+
 using namespace std;
 
 class ServerThread {

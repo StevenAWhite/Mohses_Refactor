@@ -13,6 +13,9 @@
 
 #include "tinyxml2.h"
 
+#include <cstdio>
+#include <cstddef>
+#include <sys/types.h>
 
 using namespace std;
 using namespace tinyxml2;
@@ -22,7 +25,9 @@ using namespace std::chrono;
 using namespace eprosima::fastdds::dds;
 using namespace eprosima::fastrtps::rtps;
 
+#if WIN32
 using  ssize_t = SSIZE_T;
+#endif 
 
 Server *s;
 

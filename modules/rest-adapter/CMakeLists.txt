@@ -31,7 +31,7 @@ if (MOHSES_BUILD_REST_ADAPTER AND NOT WIN32)
 
     file(GLOB_RECURSE SQLITE_SRCS LIST_DIRECTORIES OFF CONFIGURE_DEPENDS *.cpp)
     file(GLOB_RECURSE SQLITE_HDRS LIST_DIRECTORIES OFF CONFIGURE_DEPENDS *.h)
-    set(MODULE_MANAGER_SOURCES src/RestAdapterMain.CPP ${SQLITE_SRCS} ${SQLITE_HDRS})
+    set(MODULE_MANAGER_SOURCES src/RESTAdapterMain.cpp ${SQLITE_SRCS} ${SQLITE_HDRS})
 
     add_executable(mohses_rest_adapter ${MODULE_MANAGER_SOURCES})
     add_executable(Mohses::rest_adapater ALIAS mohses_rest_adapter)
@@ -49,8 +49,12 @@ if (MOHSES_BUILD_REST_ADAPTER AND NOT WIN32)
             pistache::static
             Boost::headers
             Boost::uuid
+            Boost::filesystem
+            Boost::process
             )
-    set_target_properties(mohses_rest_adapter PROPERTIES FOLDER ${CMAKE_FOLDER}/modules) 
+    set(CMAKE_CXX_STANDARD 20) 
+    set(CMAKE_CXX_STANDARD_REQUIRED ON)
+    set_target_properties(mohses_rest_adapter PROPERTIES FOLDER ${CMAKE_FOLDER}/modules CXX_STANDARD 20) 
 
     install(TARGETS mohses_rest_adapter RUNTIME DESTINATION bin)
     install(DIRECTORY ../config DESTINATION bin)

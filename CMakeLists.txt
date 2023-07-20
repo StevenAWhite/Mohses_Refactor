@@ -39,8 +39,8 @@ find_package(Threads)
 
 set(USE_FOLDERS TRUE)
 add_subdirectory(thirdparty)
-#add_subdirectory(libraries)
-#add_subdirectory(modules)
+add_subdirectory(libraries)
+add_subdirectory(modules)
 
 # message(STATUS "")
 # message(STATUS "    == Final overview for ${PROJECT_NAME} ==")
