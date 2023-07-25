@@ -6,6 +6,7 @@ function(guarantee_boost_availability)
     set(GIT_REPOSITORY https://github.com/boostorg/boost.git)
     set(GIT_TAG boost-1.82.0)
     set(PACKAGE_NAME Boost)
+    set(FETCH_NAME boost)
     set(PACKAGE_PREFIX BOOST)
 
 if (BUILD_THIRDPARTY_TEST)
@@ -17,7 +18,7 @@ find_package(${PACKAGE_NAME} QUIET GLOBAL)
     option(MOHSES_FETCH_THIRDPARTY "This option will try to fetch third party dependencies for building" ON)
     if ( NOT ${PACKAGE_NAME}_FOUND)
         if (MOHSES_FETCH_THIRDPARTY)
-            set(${PACKAGE_PREFIX}_INCLUDE_LIBRARIES algorithm assign archive filesystem foreach lambda math program_options process serialization system uuid)
+            set(${PACKAGE_PREFIX}_INCLUDE_LIBRARIES algorithm assign filesystem foreach lambda math program_options process serialization system uuid)
             set(${PACKAGE_PREFIX}_ENABLE_CMAKE ON)
             set(CMAKE_FOLDER "${CMAKE_FOLDER}/${PACKAGE_NAME}")
             FetchContent_Declare(
@@ -36,9 +37,9 @@ find_package(${PACKAGE_NAME} QUIET GLOBAL)
                 target_link_libraries(${PACKAGE_NAME}_test PRIVATE ${PACKAGE_NAME}::filesystem ${PACKAGE_NAME}::headers)            
             endif()
         endif()
-    else()
-       find_package(${PACKAGE_NAME} REQUIRED COMPONENTS algorithm assign filesystem foreach lambda math program_options process serialization system uuid GLOBAL)
     endif()
+
+    find_package(${PACKAGE_NAME} REQUIRED COMPONENTS algorithm assign filesystem foreach lambda math program_options process serialization system uuid GLOBAL)
     
     if (NOT ${PACKAGE_NAME}_FOUND)
         message(FATAL_ERROR "Unable to find ${PACKAGE_NAME} or fetch it from ${GIT_REPOSITORY}. 

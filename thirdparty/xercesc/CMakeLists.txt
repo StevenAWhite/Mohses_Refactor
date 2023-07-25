@@ -83,10 +83,9 @@ function(guarantee_Xerces_availability)
                 target_link_libraries(${PACKAGE_EXPORT} INTERFACE xerces-c)
               endif()
         endif()
-    else()
-       find_package(${PACKAGE_NAME} REQUIRED GLOBAL)
     endif()
 
+    find_package(${PACKAGE_NAME} REQUIRED GLOBAL)
     if (NOT ${PACKAGE_NAME}_FOUND)
         message(FATAL_ERROR "Unable to find ${PACKAGE_NAME} or fetch it from ${GIT_REPOSITROY}. 
         Check your network connection or install the ${PACKAGE_NAME} package and configure your CMAKE_PREFIX_PATH to ensure visibility

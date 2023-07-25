@@ -67,15 +67,6 @@ function(guarantee_fastddr_availability)
                 target_link_libraries(${PACKAGE_NAME}_test PRIVATE fastrtps fastcdr foonathan_memory tinyxml2::tinyxml2)            
             endif()
         endif()
-    else()
-       find_package(${PACKAGE_NAME} REQUIRED GLOBAL)
-    endif()
-
-    if (NOT ${PACKAGE_NAME}_FOUND)
-        message(FATAL_ERROR "Unable to find ${PACKAGE_NAME} or fetch it from${GIT_REPOSITORY}. 
-        Check your network connection or install the ${PACKAGE_NAME} package and configure your CMAKE_PREFIX_PATH to ensure visibility
-        https://cmake.org/cmake/help/latest/variable/CMAKE_PREFIX_PATH.html 
-        https://cmake.org/cmake/help/latest/command/find_package.html#command:find_package")
     endif()
 
     if (TARGET ${PACKAGE_NAME} AND NOT TARGET ${EXPORT_NAME})
@@ -84,6 +75,15 @@ function(guarantee_fastddr_availability)
     if (TARGET ${PACKAGE_NAME} AND NOT TARGET ${EXPORT_NAME2})
       add_library(${EXPORT_NAME2} ALIAS ${PACKAGE_NAME})
     endif()
+
+    find_package(${PACKAGE_NAME} REQUIRED GLOBAL)
+    if (NOT ${PACKAGE_NAME}_FOUND)
+        message(FATAL_ERROR "Unable to find ${PACKAGE_NAME} or fetch it from${GIT_REPOSITORY}. 
+        Check your network connection or install the ${PACKAGE_NAME} package and configure your CMAKE_PREFIX_PATH to ensure visibility
+        https://cmake.org/cmake/help/latest/variable/CMAKE_PREFIX_PATH.html 
+        https://cmake.org/cmake/help/latest/command/find_package.html#command:find_package")
+    endif()
+
 
 endfunction()
 

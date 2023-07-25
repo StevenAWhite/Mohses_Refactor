@@ -33,19 +33,17 @@ function(gaurentee_foonathan_memory_availability)
         message(STATUS "${PACKAGE_NAME} not found Fetching ${GIT_TAG}")            
         FetchContent_MakeAvailable(${PACKAGE_NAME})
 
-            if (TARGET SQLite3)
-               message(FATAL_ERROR "WE HAVE A TARGET SQLite3")
-            endif()
+        if (TARGET SQLite3)
+           message(FATAL_ERROR "WE HAVE A TARGET SQLite3")
+        endif()
 
-            if (TARGET SQLite::SQLite3)
-               message(FATAL_ERROR"WE HAVE A TARGET SQLite::SQLite3")
-            endif()
+        if (TARGET SQLite::SQLite3)
+           message(FATAL_ERROR"WE HAVE A TARGET SQLite::SQLite3")
+        endif()
 
 
         if(NOT EXISTS ${CMAKE_FIND_PACKAGE_REDIRECTS_DIR}/${PACKAGE_NAME}-extra.cmake AND
             NOT EXISTS ${CMAKE_FIND_PACKAGE_REDIRECTS_DIR}/${PACKAGE_NAME}Extra.cmake)
-
-            
 
             get_target_property(${PACKAGE_PREFIX}_INCLUDE_DIR  ${PACKAGE_NAME} INCLUDE_DIRECTORIES)
             get_target_property(${PACKAGE_PREFIX}_LIBRARIES  ${PACKAGE_NAME} OUTPUT_NAME)
@@ -76,17 +74,16 @@ function(gaurentee_foonathan_memory_availability)
             set_target_properties(${PACKAGE_NAME}_test PROPERTIES FOLDER "${CMAKE_FOLDER}/Tests")
             target_link_libraries(${PACKAGE_NAME}_test PRIVATE ${PACKAGE_NAME})            
         endif()
-
-        if (NOT ${PACKAGE_NAME}_FOUND)
-            message(FATAL_ERROR "Unable to find ${PACKAGE_NAME} or fetch it from ${GIT_REPOSITROY}. 
-            Check your network connection or install the ${PACKAGE_NAME} package and configure your CMAKE_PREFIX_PATH to ensure visibility
-            https://cmake.org/cmake/help/latest/variable/CMAKE_PREFIX_PATH.html 
-            https://cmake.org/cmake/help/latest/command/find_package.html#command:find_package")
-        endif()
       endif()
-    else()
-       find_package(${PACKAGE_NAME} REQUIRED GLOBAL)
     endif()
+    find_package(${PACKAGE_NAME} REQUIRED GLOBAL)
+
+     if (NOT ${PACKAGE_NAME}_FOUND)
+         message(FATAL_ERROR "Unable to find ${PACKAGE_NAME} or fetch it from ${GIT_REPOSITROY}. 
+         Check your network connection or install the ${PACKAGE_NAME} package and configure your CMAKE_PREFIX_PATH to ensure visibility
+         https://cmake.org/cmake/help/latest/variable/CMAKE_PREFIX_PATH.html 
+         https://cmake.org/cmake/help/latest/command/find_package.html#command:find_package")
+     endif()
 endfunction()
 
 gaurentee_foonathan_memory_availability()

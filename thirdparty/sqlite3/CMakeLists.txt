@@ -75,9 +75,9 @@ function(guarantee_sqlite3_availability)
                 # target_include_directories(${PACKAGE_NAME}_test PRIVATE $<INSTALL_INTERFACE:include>$<BUILD_INTERFACE:${${PACKAGE_NAME}_SOURCE_DIR}>)
             endif()
         endif()
-    else()
-       find_package(${PACKAGE_NAME} REQUIRED GLOBAL)
    endif()
+
+   find_package(${PACKAGE_NAME} REQUIRED GLOBAL)
 
    if (NOT ${PACKAGE_NAME}_FOUND)
     message(FATAL_ERROR "Unable to find ${PACKAGE_NAME} or fetch it from ${GIT_REPOSITROY}. 

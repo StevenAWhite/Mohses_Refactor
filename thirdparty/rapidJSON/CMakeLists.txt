@@ -78,15 +78,6 @@ find_package(${PACKAGE_NAME} QUIET GLOBAL)
                 target_link_libraries(${PACKAGE_NAME}_test PRIVATE ${PACKAGE_EXPORT} )            
             endif()
         endif()
-    else()
-      find_package(${PACKAGE_NAME} REQUIRED GLOBAL)
-    endif()
-
-    if (NOT ${PACKAGE_NAME}_FOUND)
-        message(FATAL_ERROR "Unable to find ${PACKAGE_NAME} or fetch it from ${GIT_REPOSITROY}. 
-        Check your network connection or install the ${PACKAGE_NAME} package and configure your CMAKE_PREFIX_PATH to ensure visibility
-        https://cmake.org/cmake/help/latest/variable/CMAKE_PREFIX_PATH.html 
-        https://cmake.org/cmake/help/latest/command/find_package.html#command:find_package")
     endif()
 
     if ( NOT TARGET rapidjson AND RapidJSON_SOURCE_DIR=${RapidJSON_SOURCE_DIR})
@@ -105,6 +96,14 @@ find_package(${PACKAGE_NAME} QUIET GLOBAL)
       add_library( rapidjson::headers ALIAS rapidjson)
     endif()
     
+    find_package(${PACKAGE_NAME} REQUIRED GLOBAL)
+    if (NOT ${PACKAGE_NAME}_FOUND)
+        message(FATAL_ERROR "Unable to find ${PACKAGE_NAME} or fetch it from ${GIT_REPOSITROY}. 
+        Check your network connection or install the ${PACKAGE_NAME} package and configure your CMAKE_PREFIX_PATH to ensure visibility
+        https://cmake.org/cmake/help/latest/variable/CMAKE_PREFIX_PATH.html 
+        https://cmake.org/cmake/help/latest/command/find_package.html#command:find_package")
+    endif()
+
 endfunction()
 
 guarantee_RapidJSON_availability()

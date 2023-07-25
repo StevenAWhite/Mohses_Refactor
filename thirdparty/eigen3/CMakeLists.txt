@@ -49,9 +49,8 @@ function(guarantee_Eigen3_availability)
                 )
               endif()
         endif()
-    else()
-       find_package(${PACKAGE_NAME} REQUIRED GLOBAL)
     endif()
+    find_package(${PACKAGE_NAME} REQUIRED GLOBAL)
 
     if (NOT ${PACKAGE_NAME}_FOUND)
         message(FATAL_ERROR "Unable to find ${PACKAGE_NAME} or fetch it from ${GIT_REPOSITROY}. 

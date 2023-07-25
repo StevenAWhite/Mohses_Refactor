@@ -22,7 +22,7 @@ endif()
 
 if (MOHSES_BUILD_TCP_BRIDGE)
 
-    project("MOHSES Rest Adapter")
+    project("MOHSES Rest Adapter" CXX)
 
     set(PROJECT_VERSION_MAJOR 1)
     set(PROJECT_VERSION_MINOR 0)
@@ -73,7 +73,7 @@ if (MOHSES_BUILD_TCP_BRIDGE)
             Boost::headers
             Threads::Threads
             )
-    set_target_properties(mohses_tcp_bridge PROPERTIES FOLDER ${CMAKE_FOLDER}/modules) 
+    set_target_properties(mohses_tcp_bridge PROPERTIES FOLDER ${CMAKE_FOLDER}/modulesi CXX_STANDARD 20) 
 
     install(TARGETS mohses_tcp_bridge RUNTIME DESTINATION bin)
     install(DIRECTORY ../config DESTINATION bin)

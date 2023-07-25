@@ -116,6 +116,7 @@ function(guarantee_TinyXML2_availability)
 
     else()
       find_package(${PACKAGE_NAME} REQUIRED GLOBAL)
+
       if (NOT TARGET ${PACKAGE_EXPORT})
         message(STATUS "EXPORTING ${PACKAGE_EXPORT}")
         add_library(${PACKAGE_EXPORT} INTERFACE IMPORTED GLOBAL)

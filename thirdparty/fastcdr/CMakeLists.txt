@@ -62,9 +62,13 @@ function(guarantee_fastcdr_availability)
                 target_link_libraries(${PACKAGE_NAME}_test PRIVATE ${PACKAGE_NAME})            
             endif()
         endif()
-    else()
-       find_package(${PACKAGE_NAME} REQUIRED GLOBAL)
     endif()
+
+    if (TARGET ${PACKAGE_NAME} AND NOT TARGET ${EXPORT_NAME})
+      add_library(${EXPORT_NAME} ALIAS ${PACKAGE_NAME})
+    endif()
+
+    find_package(${PACKAGE_NAME} REQUIRED GLOBAL)
 
     if (NOT ${PACKAGE_NAME}_FOUND AND NOT depname_POPULATED)
         message(FATAL_ERROR "Unable to find ${PACKAGE_NAME} or fetch it from ${GIT_REPOSITORY}. 
@@ -73,9 +77,6 @@ function(guarantee_fastcdr_availability)
         https://cmake.org/cmake/help/latest/command/find_package.html#command:find_package")
     endif()
 
-    if (TARGET ${PACKAGE_NAME} AND NOT TARGET ${EXPORT_NAME})
-      add_library(${EXPORT_NAME} ALIAS ${PACKAGE_NAME})
-    endif()
 
 endfunction()
 
