@@ -46,7 +46,7 @@ if (MOHSES_BUILD_REST_ADAPTER AND NOT WIN32)
             eProsima::fastcdr
             eProsima::fastrtps
             rapidjson::headers
-            pistache::static
+            pistache::lib
             Boost::headers
             Boost::uuid
             Boost::filesystem

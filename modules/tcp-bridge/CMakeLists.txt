@@ -38,6 +38,7 @@ if (MOHSES_BUILD_TCP_BRIDGE)
     #############################
     # CMake Mod Manager root/src
     #############################
+    find_package(TinyXML2 REQUIRED)
 
     set(TCP_BRIDGE_MODULE_SOURCES
         src/TCPBridgeMain.cpp

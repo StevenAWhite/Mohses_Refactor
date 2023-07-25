@@ -25,6 +25,7 @@ if (MOHSES_BUILD_physiology_manager)
         #############################
         # CMake Mod Manager root/src
         #############################
+        find_package(TinyXML2 REQUIRED)
 
         set(physiology_manager_SOURCES src/PhysiologyManager.cpp src/AMM/PhysiologyEngineManager.cpp src/AMM/BiogearsThread.cpp)
 

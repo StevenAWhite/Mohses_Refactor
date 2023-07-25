@@ -50,6 +50,8 @@ target_link_libraries(
         net
         PUBLIC fastrtps
         PUBLIC fastcdr
+        PUBLIC Boost::dynamic_linking
+        PUBLIC Boost::disable_autolinking
         PUBLIC Boost::algorithm
         PUBLIC Boost::serialization
 )

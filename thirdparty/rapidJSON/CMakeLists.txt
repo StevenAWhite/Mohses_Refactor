@@ -16,7 +16,7 @@ if (BUILD_THIRDPARTY_TEST)
 option(BUILD_${PACKAGE_NAME}_AVAILABILITY_TEST "Build ${PACKAGE_NAME} sample project for testing" ON)
 endif()
 cmake_parse_arguments("${PACKAGE_NAME}" "REQUIRED" "" ""  ${ARGN})
-find_package(${PACKAGE_NAME} QUIET)
+find_package(${PACKAGE_NAME} QUIET GLOBAL)
     Set(FETCHCONTENT_QUIET FALSE)
     option(MOHSES_FETCH_THIRDPARTY "This option will try to fetch third party dependencies for building" ON)
     if ( NOT ${PACKAGE_NAME}_FOUND )
@@ -78,9 +78,11 @@ find_package(${PACKAGE_NAME} QUIET)
                 target_link_libraries(${PACKAGE_NAME}_test PRIVATE ${PACKAGE_EXPORT} )            
             endif()
         endif()
+    else()
+      find_package(${PACKAGE_NAME} REQUIRED GLOBAL)
     endif()
 
-    if (${PACKAGE_NAME}_REQUIRED AND NOT ${PACKAGE_NAME}_FOUND)
+    if (NOT ${PACKAGE_NAME}_FOUND)
         message(FATAL_ERROR "Unable to find ${PACKAGE_NAME} or fetch it from ${GIT_REPOSITROY}. 
         Check your network connection or install the ${PACKAGE_NAME} package and configure your CMAKE_PREFIX_PATH to ensure visibility
         https://cmake.org/cmake/help/latest/variable/CMAKE_PREFIX_PATH.html 
@@ -94,12 +96,12 @@ find_package(${PACKAGE_NAME} QUIET)
             INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
             $<INSTALL_INTERFACE:${${PACKAGE_PREFIX}_INCLUDE_DIR}>)
       add_library( rapidjson::headers ALIAS rapidjson)
-    elseif( ${PACKAGE_PREFIX}_INCLUDE_DIR )
+    elseif( ${PACKAGE_PREFIX}_INCLUDE_DIRS )
       message(STATUS "Creating Target rapidjson from RAPIDJSON_INCLUDE_DIR=${RAPIDJSON_INCLUDE_DIR}")
       add_library(rapidjson INTERFACE)
       target_include_directories(rapidjson INTERFACE  
-            INTERFACE $<BUILD_INTERFACE:${${PACKAGE_PREFIX}_INCLUDE_DIR}>
-            $<INSTALL_INTERFACE:${${PACKAGE_PREFIX}_INCLUDE_DIR}>)
+            INTERFACE $<BUILD_INTERFACE:${${PACKAGE_PREFIX}_INCLUDE_DIRS}>
+            $<INSTALL_INTERFACE:${${PACKAGE_PREFIX}_INCLUDE_DIRS}>)
       add_library( rapidjson::headers ALIAS rapidjson)
     endif()
     
