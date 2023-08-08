@@ -11,15 +11,14 @@ function(guarantee_TinyXML2_availability)
     set(PACKAGE_PREFIX TINYXML2)
     set(PACKAGE_EXPORT tinyxml2::tinyxml2
     )
-    if (BUILD_THIRDPARTY_TEST)
-        option(BUILD_${PACKAGE_NAME}_AVAILABILITY_TEST "Build ${PACKAGE_NAME} sample project for testing" ON)
-    endif()
     cmake_parse_arguments("${PACKAGE_NAME}" "REQUIRED" "" ""  ${ARGN})
     find_package(${PACKAGE_NAME} CONFIG QUIET GLOBAL )
     Set(FETCHCONTENT_QUIET FALSE)
-    option(MOHSES_FETCH_THIRDPARTY "This option will try to fetch third party dependencies for building" ON)
     if ( NOT ${PACKAGE_NAME}_FOUND )
         if (MOHSES_FETCH_THIRDPARTY)
+            if (BUILD_THIRDPARTY_TEST)
+                option(BUILD_${PACKAGE_NAME}_AVAILABILITY_TEST "Build ${PACKAGE_NAME} sample project for testing" ON)
+            endif()
 
             set(CMAKE_FOLDER "${CMAKE_FOLDER}/${PACKAGE_NAME}")
             set(tinyxml2_BUILD_TESTING OFF CACHE INTERNAL "Build TinyXML2 Testing" FORCE)
@@ -37,7 +36,7 @@ function(guarantee_TinyXML2_availability)
             FetchContent_MakeAvailable(${PACKAGE_NAME})
 
             if(NOT EXISTS ${CMAKE_FIND_PACKAGE_REDIRECTS_DIR}/${PACKAGE_NAME}-extra.cmake AND
-            NOT EXISTS ${CMAKE_FIND_PACKAGE_REDIRECTS_DIR}/${PACKAGE_NAME}Extra.cmake)
+               NOT EXISTS ${CMAKE_FIND_PACKAGE_REDIRECTS_DIR}/${PACKAGE_NAME}Extra.cmake)
                get_target_property(${PACKAGE_PREFIX}_INCLUDE_DIR  ${PACKAGE_EXPORT} INCLUDE_DIRECTORIES)
                get_target_property(${PACKAGE_PREFIX}_OUTPUT_NAME_Release  tinyxml2 OUTPUT_NAME_Release)
 
@@ -57,23 +56,23 @@ function(guarantee_TinyXML2_availability)
                   endif()
                ")
             endif()
-             install(TARGETS tinyxml2 EXPORT ${PACKAGE_NAME})  
-             export(TARGETS tinyxml2 FILE ${PACKAGE_NAME}-targets.cmake)
+            install(TARGETS tinyxml2 EXPORT ${PACKAGE_NAME})  
+            export(TARGETS tinyxml2 FILE ${PACKAGE_NAME}-targets.cmake)
 
-             file(WRITE ${${FETCH_NAME}_SOURCE_DIR}/cmake/tinyxml2.pc.in
-             "
-                prefix=@CMAKE_INSTALL_PREFIX@
-                exec_prefix=\${prefix}
-                libdir=\${exec_prefix}/@CMAKE_INSTALL_LIBDIR@
-                includedir=\${prefix}/@CMAKE_INSTALL_INCLUDEDIR@
+            file(WRITE ${${FETCH_NAME}_SOURCE_DIR}/cmake/tinyxml2.pc.in
+            "
+               prefix=@CMAKE_INSTALL_PREFIX@
+               exec_prefix=\${prefix}
+               libdir=\${exec_prefix}/@CMAKE_INSTALL_LIBDIR@
+               includedir=\${prefix}/@CMAKE_INSTALL_INCLUDEDIR@
 
-                Name: TinyXML2
-                Description: simple, small, C++ XML parser
-                Version: @tinyxml2_VERSION@
-                Libs: -L\${libdir} -ltinyxml2
-                Cflags: -I\${includedir}
-             "
-             )
+               Name: TinyXML2
+               Description: simple, small, C++ XML parser
+               Version: @tinyxml2_VERSION@
+               Libs: -L\${libdir} -ltinyxml2
+               Cflags: -I\${includedir}
+            "
+            )
 
             find_path(${PACKAGE_PREFIX}_INCLUDE_DIR  NAMES tinyxml2.h HINTS ${${FETCH_NAME}_SOURCE_DIR}  NO_DEFAULT_PATHS)
             find_library(${PACKAGE_PREFIX}_LIBRARY_RELEASE 
@@ -94,7 +93,6 @@ function(guarantee_TinyXML2_availability)
             if(TINYXML2_FOUND)
                set(TINYXML2_LIBRARY "${PACKAGE_EXPORT}" CACHE INTERNAL "The Lirbraries of Tinyxml2" FORCE)
             endif()
-            message(STATUS "Testing if (NOT TARGET ${PACKAGE_EXPORT})")
             if (NOT TARGET ${PACKAGE_EXPORT})
                 message(STATUS "EXPORTING ${PACKAGE_EXPORT}")
                 add_library(${PACKAGE_EXPORT} INTERFACE IMPORTED GLOBAL)
@@ -113,26 +111,23 @@ function(guarantee_TinyXML2_availability)
                 target_link_libraries(${PACKAGE_NAME}_test PRIVATE ${PACKAGE_EXPORT} )            
            endif()
         endif()
+    endif()
 
-    else()
-      find_package(${PACKAGE_NAME} REQUIRED GLOBAL)
-
-      if (NOT TARGET ${PACKAGE_EXPORT})
-        message(STATUS "EXPORTING ${PACKAGE_EXPORT}")
-        add_library(${PACKAGE_EXPORT} INTERFACE IMPORTED GLOBAL)
-        
-        set_target_properties(${PACKAGE_EXPORT}
-        PROPERTIES
-        INTERFACE_INCLUDE_DIRECTORIES
-        ${TinyXML2_INCLUDE_DIR}
-        ${TINYXML2_INCLUDE_DIR}
-        )
-        target_include_directories(${PACKAGE_EXPORT} INTERFACE $<INSTALL_INTERFACE:include> INTERFACE $<BUILD_INTERFACE:4{TinyXML2_INCLUDE_DIR}> $<BUILD_INTERFACE:4{TINYXML2_INCLUDE_DIR}>)
-        target_link_libraries(${PACKAGE_EXPORT} INTERFACE ${TINYXML2_LIBRARY} ${TinyXML2_LIBRARY})
-      elseif(TARGET ${PACKAGE_EXPORT})
-        message(STATUS "${PACKAGE_EXPORT} target exists")
-      endif()
-      message(STATUS "Found ${PACKAGE_NAME} by find_package")
+    if (${TinyXML2_FOUND} AND NOT TARGET ${PACKAGE_EXPORT})
+      message(STATUS "EXPORTING ${PACKAGE_EXPORT}")
+      add_library(${PACKAGE_EXPORT} INTERFACE IMPORTED GLOBAL)
+      
+      set_target_properties(${PACKAGE_EXPORT}
+      PROPERTIES
+      INTERFACE_INCLUDE_DIRECTORIES
+      ${TinyXML2_INCLUDE_DIR}
+      ${TINYXML2_INCLUDE_DIR}
+      )
+      target_include_directories(${PACKAGE_EXPORT} INTERFACE $<INSTALL_INTERFACE:include> INTERFACE $<BUILD_INTERFACE:${TinyXML2_INCLUDE_DIR}> $<BUILD_INTERFACE:${TINYXML2_INCLUDE_DIR}>)
+      message(STATUS "target_link_libraries(${PACKAGE_EXPORT} INTERFACE ${TINYXML2_LIBRARY} ${TinyXML2_LIBRARY})")
+      target_link_libraries(${PACKAGE_EXPORT} INTERFACE ${TINYXML2_LIBRARY} ${TinyXML2_LIBRARY})
+    elseif(TARGET ${PACKAGE_EXPORT})
+      message(STATUS "${PACKAGE_EXPORT} target exists")
     endif()
 
     if (NOT ${PACKAGE_NAME}_FOUND)
@@ -140,6 +135,8 @@ function(guarantee_TinyXML2_availability)
         Check your network connection or install the ${PACKAGE_NAME} package and configure your CMAKE_PREFIX_PATH to ensure visibility
         https://cmake.org/cmake/help/latest/variable/CMAKE_PREFIX_PATH.html 
         https://cmake.org/cmake/help/latest/command/find_package.html#command:find_package")
+    else()
+      message(STATUS "Found ${PACKAGE_NAME} by find_package")
     endif()
 
 

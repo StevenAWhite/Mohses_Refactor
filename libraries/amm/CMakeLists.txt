@@ -24,8 +24,7 @@ if (DEFINED ENV{FASTRTPSHOME})
     list(APPEND CMAKE_PREFIX_PATH $ENV{FASTRTPSHOME})
 endif ()
 
-find_package(Boost REQUIRED COMPONENTS algorithm serialization)
-#find_package(TinyXML2 REQUIRED GLOBAL )
+find_package(Boost REQUIRED COMPONENTS serialization)
 find_package(fastcdr REQUIRED)
 find_package(fastrtps REQUIRED)
 

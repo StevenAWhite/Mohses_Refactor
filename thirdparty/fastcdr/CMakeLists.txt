@@ -9,15 +9,14 @@ function(guarantee_fastcdr_availability)
     set(EXPORT_NAME eProsima::fastcdr)
     set(PACKAGE_PREFIX FASTCDR)
 
-    if (BUILD_THIRDPARTY_TEST)
-        option(BUILD_${PACKAGE_NAME}_AVAILABILITY_TEST "Build ${PACKAGE_NAME} sample project for testing" ON)
-    endif()
     cmake_parse_arguments("${PACKAGE_NAME}" "REQUIRED" "" ""  ${ARGN})
     find_package(${PACKAGE_NAME} QUIET GLOBAL)
     Set(FETCHCONTENT_QUIET FALSE)
-    option(MOHSES_FETCH_THIRDPARTY "This option will try to fetch third party dependencies for building" ON)
     if ( NOT ${PACKAGE_NAME}_FOUND )
         if (MOHSES_FETCH_THIRDPARTY AND NOT ${PACKAGE_NAME}_POPULATED)
+            if (BUILD_THIRDPARTY_TEST)
+                option(BUILD_${PACKAGE_NAME}_AVAILABILITY_TEST "Build ${PACKAGE_NAME} sample project for testing" ON)
+            endif()
             set(CMAKE_FOLDER "${CMAKE_FOLDER}/${PACKAGE_NAME}")
             FetchContent_Declare(
                 ${PACKAGE_NAME}

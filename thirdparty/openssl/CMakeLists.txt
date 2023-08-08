@@ -8,15 +8,14 @@ function(guarantee_openssl_availability)
    set(PACKAGE_NAME openssl)
    set(PACKAGE_PREFIX OPENSSL)
 
-   if (BUILD_THIRDPARTY_TEST)
-        option(BUILD_${PACKAGE_NAME}_AVAILABILITY_TEST "Build ${PACKAGE_NAME} sample project for testing" ON)
-   endif()
    cmake_parse_arguments("${PACKAGE_NAME}" "REQUIRED" "" ""  ${ARGN})
    find_package(OpenSSL QUIET GLOBAL)
    Set(FETCHCONTENT_QUIET FALSE)
-   option(MOHSES_FETCH_THIRDPARTY "This option will try to fetch third party dependencies for building" ON)
    if ( NOT ${PACKAGE_NAME}_FOUND AND NOT MSVC)
         if (MOHSES_FETCH_THIRDPARTY)
+            if (BUILD_THIRDPARTY_TEST)
+                 option(BUILD_${PACKAGE_NAME}_AVAILABILITY_TEST "Build ${PACKAGE_NAME} sample project for testing" ON)
+            endif()
             set(CMAKE_FOLDER "${CMAKE_FOLDER}/${PACKAGE_NAME}")
             FetchContent_Declare(
                 ${PACKAGE_NAME}
