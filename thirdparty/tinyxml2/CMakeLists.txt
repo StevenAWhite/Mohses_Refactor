@@ -35,27 +35,6 @@ function(guarantee_TinyXML2_availability)
     
             FetchContent_MakeAvailable(${PACKAGE_NAME})
 
-            if(NOT EXISTS ${CMAKE_FIND_PACKAGE_REDIRECTS_DIR}/${PACKAGE_NAME}-extra.cmake AND
-               NOT EXISTS ${CMAKE_FIND_PACKAGE_REDIRECTS_DIR}/${PACKAGE_NAME}Extra.cmake)
-               get_target_property(${PACKAGE_PREFIX}_INCLUDE_DIR  ${PACKAGE_EXPORT} INCLUDE_DIRECTORIES)
-               get_target_property(${PACKAGE_PREFIX}_OUTPUT_NAME_Release  tinyxml2 OUTPUT_NAME_Release)
-
-               file(WRITE ${CMAKE_FIND_PACKAGE_REDIRECTS_DIR}/${PACKAGE_NAME}-extra.cmake                                
-               "
-                  if(\"\${${PACKAGE_PREFIX}_INCLUDE_DIR}\" STREQUAL \"\" AND TARGET  ${PACKAGE_EXPORT})
-                    set(${PACKAGE_PREFIX}_INCLUDE_DIR ${${PACKAGE_PREFIX}_INCLUDE_DIR})
-                  endif()
-                  if(\"\${${PACKAGE_PREFIX}_INCLUDE_DIRS}\" STREQUAL \"\" AND TARGET  ${PACKAGE_EXPORT})
-                    set(${PACKAGE_PREFIX}_INCLUDE_DIRS ${${PACKAGE_PREFIX}_INCLUDE_DIR})
-                  endif()
-                  if(\"\${${PACKAGE_PREFIX}_LIBRARY}\" STREQUAL \"\" AND TARGET  ${PACKAGE_EXPORT})
-                    set(${PACKAGE_PREFIX}_LIBRARY ${PACKAGE_EXPORT})
-                  endif()
-                  if(\"\${${PACKAGE_PREFIX}_LIBRARIES}\" STREQUAL \"\" AND TARGET  ${PACKAGE_EXPORT})
-                    set(${PACKAGE_PREFIX}_LIBRARIES  ${PACKAGE_EXPORT})
-                  endif()
-               ")
-            endif()
             install(TARGETS tinyxml2 EXPORT ${PACKAGE_NAME})  
             export(TARGETS tinyxml2 FILE ${PACKAGE_NAME}-targets.cmake)
 
@@ -73,16 +52,31 @@ function(guarantee_TinyXML2_availability)
                Cflags: -I\${includedir}
             "
             )
-
-            find_path(${PACKAGE_PREFIX}_INCLUDE_DIR  NAMES tinyxml2.h HINTS ${${FETCH_NAME}_SOURCE_DIR}  NO_DEFAULT_PATHS)
+            find_path(${PACKAGE_PREFIX}_INCLUDE_DIR  
+                   NAMES tinyxml2.h 
+                   PATHS ${${FETCH_NAME}_SOURCE_DIR}
+                   NO_CMAKE_ENVIRONMENT_PATH
+                   NO_SYSTEM_ENVIRONMENT_PATH
+                   NO_CMAKE_SYSTEM_PATH
+                   NO_CMAKE_FIND_ROOT_PATH
+            )
             find_library(${PACKAGE_PREFIX}_LIBRARY_RELEASE 
-                   NAMES tinyxml2
-                   PATHS ${${FETCH_NAME}_BINARY_DIR}
-                   NO_DEFAULT_PATHS)
+                   NAMES tinyxml2 
+                   PATHS ${${FETCH_NAME}_BINARY_DIR}/ ${${FETCH_NAME}_SOURCE_DIR}/
+                   NO_CMAKE_ENVIRONMENT_PATH
+                   NO_SYSTEM_ENVIRONMENT_PATH
+                   NO_CMAKE_SYSTEM_PATH
+                   NO_CMAKE_FIND_ROOT_PATH
+            )
+
             find_library(${PACKAGE_PREFIX}_LIBRARY_DEBUG 
                    NAMES tinyxml2d tinyxml2
                    PATHS ${${FETCH_NAME}_BINARY_DIR}
-                   NO_DEFAULT_PATHS)
+                   NO_CMAKE_ENVIRONMENT_PATH
+                   NO_SYSTEM_ENVIRONMENT_PATH
+                   NO_CMAKE_SYSTEM_PATH
+                   NO_CMAKE_FIND_ROOT_PATH
+                   NO_DEFAULT_PATH)
             include(FindPackageHandleStandardArgs)
             FIND_PACKAGE_HANDLE_STANDARD_ARGS(${PACKAGE_NAME}
                                   REQUIRED_VARS ${PACKAGE_PREFIX}_INCLUDE_DIR
@@ -90,21 +84,20 @@ function(guarantee_TinyXML2_availability)
                                                 ${PACKAGE_PREFIX}_LIBRARY_DEBUG
              
             )
-            if(TINYXML2_FOUND)
-               set(TINYXML2_LIBRARY "${PACKAGE_EXPORT}" CACHE INTERNAL "The Lirbraries of Tinyxml2" FORCE)
-            endif()
             if (NOT TARGET ${PACKAGE_EXPORT})
                 message(STATUS "EXPORTING ${PACKAGE_EXPORT}")
-                add_library(${PACKAGE_EXPORT} INTERFACE IMPORTED GLOBAL)
+                add_library(${PACKAGE_EXPORT} UNKNOWN IMPORTED GLOBAL)
                 
                 set_target_properties(${PACKAGE_EXPORT}
                 PROPERTIES
+                IMPORTED_LOCATION "$<$<CONFIG:Debug>:${PACKAGE_PREFIX}_LIBRARY_RELEASE>$<$<CONFIG:Release>:${PACKAGE_PREFIX}_LIBRARY_DEBUG>"
                 INTERFACE_INCLUDE_DIRECTORIES
                 ${${FETCH_NAME}_SOURCE_DIR}
                 )
                 target_include_directories(${PACKAGE_EXPORT} INTERFACE $<INSTALL_INTERFACE:include> INTERFACE $<BUILD_INTERFACE:${${FETCH_NAME}_SOURCE_DIR}>)
                 target_link_libraries(${PACKAGE_EXPORT} INTERFACE ${PACKAGE_NAME})
            endif()
+
            if (BUILD_${PACKAGE_NAME}_AVAILABILITY_TEST AND BUILD_THIRDPARTY_TEST)
                 add_executable(${PACKAGE_NAME}_test ${CMAKE_CURRENT_SOURCE_DIR}/tests/${PACKAGE_NAME}.cpp )
                 set_target_properties(${PACKAGE_NAME}_test PROPERTIES FOLDER "${CMAKE_FOLDER}/Tests")
@@ -113,19 +106,23 @@ function(guarantee_TinyXML2_availability)
         endif()
     endif()
 
+    if(TINYXML2_FOUND)
+      set(TINYXML2_LIBRARY "${PACKAGE_EXPORT}" CACHE INTERNAL "The Lirbraries of Tinyxml2" FORCE)
+    endif()
+
     if (${TinyXML2_FOUND} AND NOT TARGET ${PACKAGE_EXPORT})
       message(STATUS "EXPORTING ${PACKAGE_EXPORT}")
-      add_library(${PACKAGE_EXPORT} INTERFACE IMPORTED GLOBAL)
-      
+      add_library(${PACKAGE_EXPORT} UNKNOWN IMPORTED GLOBAL)
+       
       set_target_properties(${PACKAGE_EXPORT}
       PROPERTIES
+      IMPORTED_LOCATION "$<$<CONFIG:Debug>:${PACKAGE_PREFIX}_LIBRARY_RELEASE>$<$<CONFIG:Release>:${PACKAGE_PREFIX}_LIBRARY_DEBUG>"
       INTERFACE_INCLUDE_DIRECTORIES
       ${TinyXML2_INCLUDE_DIR}
       ${TINYXML2_INCLUDE_DIR}
       )
       target_include_directories(${PACKAGE_EXPORT} INTERFACE $<INSTALL_INTERFACE:include> INTERFACE $<BUILD_INTERFACE:${TinyXML2_INCLUDE_DIR}> $<BUILD_INTERFACE:${TINYXML2_INCLUDE_DIR}>)
       message(STATUS "target_link_libraries(${PACKAGE_EXPORT} INTERFACE ${TINYXML2_LIBRARY} ${TinyXML2_LIBRARY})")
-      target_link_libraries(${PACKAGE_EXPORT} INTERFACE ${TINYXML2_LIBRARY} ${TinyXML2_LIBRARY})
     elseif(TARGET ${PACKAGE_EXPORT})
       message(STATUS "${PACKAGE_EXPORT} target exists")
     endif()

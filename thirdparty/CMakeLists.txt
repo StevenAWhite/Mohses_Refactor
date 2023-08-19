@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.25.0)
 
-option(MOHSES_FETCH_THIRDPARTY "This option will try to fetch third party dependencies for building" ON)
 option(BUILD_THIRDPARTY_TEST "Enables Sample Projects for ThirdParty Packages" ${MOHSES_FETCH_THIRDPARTY})
 
 set(_CMAKE_FOLDER ${CMAKE_FOLDER})
