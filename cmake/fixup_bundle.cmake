@@ -18,9 +18,7 @@ endfunction()
 function(EXELIST result curdir)
   file(GLOB children RELATIVE ${curdir} ${curdir}/*)
   set(dirlist "")
-  message(STATUS "foreach(child ${children})")
   foreach(child ${children})
-    message(STATUS "Testing ${child}")
     if(NOT IS_DIRECTORY ${curdir}/${child} AND ${child} MATCHES "mohses_.*${CMAKE_EXECUTABLE_SUFFIX}" )
       list(APPEND dirlist ${curdir}/${child})
 	  set(${result} ${dirlist} PARENT_SCOPE)
@@ -31,7 +29,6 @@ endfunction()
 
 
 function(add_source_files var prefix regex source_group)
-    message(STATUS "add_source_files( ${var} \"${prefix}\" ${regex} \"${source_group}\")")
     file(GLOB TEMP "${prefix}/${regex}")
 
     source_group("${source_group}" FILES ${TEMP})
@@ -69,10 +66,8 @@ foreach(_dir IN LISTS CMAKE_PREFIX_PATH)
 endforeach()
 
 
-message(STATUS "HELLO NEW YORK")
 EXELIST(projects ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} )
 foreach( project IN LISTS projects)
-  message(STATUS "Fixing up ${project}")
 	fixup_bundle(${project}
                   ""
                  "${THIRD_PARTY_LIB};${THIRD_PARTY_BIN};${CMAKE_LIBRARY_OUTPUT_DIRECTORY};${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}"

@@ -67,7 +67,6 @@ set_target_properties(net PROPERTIES
           FOLDER "${CMAKE_FOLDER}/libraries"
           INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "" #include/plog" "src/idl"
           INSTALL_RPATH "\${ORIGIN}:\${ORIGIN}/../lib:\${ORIGIN}/lib"
-          PUBLIC_HEADER include/mohses/net.h 
 )
 add_library(mohses::net ALIAS net)
 
@@ -98,6 +97,18 @@ install(EXPORT ${PROJECT_NAME}
         FILE ${PROJECT_NAME}Targets.cmake
         DESTINATION lib/cmake/${PROJECT_NAME}
        )
+install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include/" 
+        DESTINATION "include"
+        FILES_MATCHING
+        PATTERN "*.h"
+)
+install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/src/idl/" 
+        DESTINATION "include/mohses"
+        FILES_MATCHING
+        PATTERN "*.h"
+)
+
+
 
 include(CMakePackageConfigHelpers)
 configure_package_config_file(${CMAKE_SOURCE_DIR}/cmake/ExportConfig.cmake.in
