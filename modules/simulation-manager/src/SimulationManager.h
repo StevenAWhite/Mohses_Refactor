@@ -1,6 +1,6 @@
 #pragma once
 
-#include "amm_std.h"
+#include <mohses/net.h>
 
 #include <fstream>
 #include <iostream>
@@ -10,7 +10,7 @@
 #include <thread>
 #include <chrono>
 
-#include "amm/Utility.h"
+#include <mohses/Utility.h>
 
 
 namespace AMM {

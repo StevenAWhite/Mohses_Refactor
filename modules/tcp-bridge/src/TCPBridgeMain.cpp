@@ -3,9 +3,9 @@
 #include "Net/Server.h"
 #include "Net/UdpDiscoveryServer.h"
 
-#include "amm_std.h"
+#include <mohses/net.h>
 
-#include "amm/BaseLogger.h"
+#include <mohses/BaseLogger.h>
 
 #include "bridge.h"
 

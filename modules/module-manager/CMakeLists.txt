@@ -3,6 +3,7 @@
 #############################
 
 cmake_minimum_required(VERSION 3.25)
+cmake_policy(SET CMP0095 NEW)
 
 if( CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR )
         SET (MOHSES_BUILD_MODULE_MANAGER ON)
@@ -30,7 +31,12 @@ if (MOHSES_BUILD_MODULE_MANAGER)
 
         add_executable(mohses_module_manager ${MODULE_MANAGER_SOURCES})
         add_executable(Mohses::module_manager ALIAS mohses_module_manager)
-
+        add_custom_command(TARGET mohses_module_manager POST_BUILD
+                           COMMENT "Staging module_manager Config Files"
+                           COMMAND ${CMAKE_COMMAND} -E copy_directory 
+                                   ${CMAKE_CURRENT_SOURCE_DIR}/config/
+                                   $<TARGET_FILE_DIR:mohses_module_manager>/config
+                          ) 
         message(STATUS "Loading Mohses::module_manager")
 
         target_link_libraries(mohses_module_manager
@@ -41,10 +47,12 @@ if (MOHSES_BUILD_MODULE_MANAGER)
                 Boost::headers
                 Boost::uuid
                 )
-        set_target_properties(mohses_module_manager PROPERTIES FOLDER ${CMAKE_FOLDER}/modules) 
+        set_target_properties(mohses_module_manager PROPERTIES 
+                 FOLDER ${CMAKE_FOLDER}/modules
+                 INSTALL_RPATH "\${ORIGIN}:\${ORIGIN}/../lib:\${ORIGIN}/lib"
+         ) 
 
         install(TARGETS mohses_module_manager RUNTIME DESTINATION bin)
-        install(DIRECTORY ../config DESTINATION bin)
+        install(DIRECTORY config DESTINATION bin)
 
-        file(COPY config DESTINATION bin/)
 endif(MOHSES_BUILD_MODULE_MANAGER)

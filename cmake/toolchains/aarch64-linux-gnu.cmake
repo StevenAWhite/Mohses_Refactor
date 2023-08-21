@@ -6,16 +6,8 @@ set(CMAKE_SYSTEM_PROCESSOR armv8)
 set(CMAKE_C_COMPILER   aarch64-linux-gnu-gcc)
 set(CMAKE_CXX_COMPILER aarch64-linux-gnu-g++)
 
-# where is the target environment located
-message( STATUS "
-  set(CMAKE_FIND_ROOT_PATH  /usr/aarch64-linux-gnu-g++ ${CMAKE_FIND_ROOT_PATH})
-  set(CMAKE_INCLUDE_PATH  /usr/include/aarch64-linux-gnu ${CMAKE_INCLUDE_PATH})
-  set(CMAKE_LIBRARY_PATH  /usr/lib/aarch64-linux-gnu ${CMAKE_LIBRARY_PATH})
-  set(CMAKE_INSTALL_PREFIX /usr/aarch64-linux-gnu)
-")
 
 set(CMAKE_FIND_ROOT_PATH  /usr/aarch64-linux-gnu /usr/include/aarch64-linux-gnu /usr/lib/aarch64-linux-gnu ${CMAKE_FIND_ROOT_PATH})
-set(CMAKE_INSTALL_PREFIX /usr/aarch64-linux-gnu)
 
 set(ENV{PKG_CONFIG_PATH} /usr/aarch64-linux-gnu/lib/pkgconfig:/usr/lib/aarch64-linux-gnu/pkgconfig)
 
@@ -39,3 +31,11 @@ set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
 set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
 set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)
+
+# where is the target environment located
+message( STATUS "
+  set(CMAKE_FIND_ROOT_PATH  /usr/aarch64-linux-gnu-g++ ${CMAKE_FIND_ROOT_PATH})
+  set(CMAKE_INCLUDE_PATH  /usr/include/aarch64-linux-gnu ${CMAKE_INCLUDE_PATH})
+  set(CMAKE_LIBRARY_PATH  /usr/lib/aarch64-linux-gnu ${CMAKE_LIBRARY_PATH})
+  set(CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
+")

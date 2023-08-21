@@ -3,6 +3,7 @@
 #############################
 
 cmake_minimum_required(VERSION 3.25)
+cmake_policy(SET CMP0095 NEW)
 
 if( CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR )
         SET (MOHSES_BUILD_SIMULATION_MANAGER ON)
@@ -32,6 +33,12 @@ if (MOHSES_BUILD_SIMULATION_MANAGER)
 
         add_executable(mohses_simulation_manager ${SIMULATION_MANAGER_SOURCES})
         add_executable(Mohses::simulation_manager ALIAS mohses_simulation_manager)
+        add_custom_command(TARGET mohses_simulation_manager POST_BUILD
+                           COMMENT "Staging simulation_manager Config Files"
+                           COMMAND ${CMAKE_COMMAND} -E copy_directory 
+                                   ${CMAKE_CURRENT_SOURCE_DIR}/config/
+                                   $<TARGET_FILE_DIR:mohses_simulation_manager>/config
+                          ) 
 
         message(STATUS "Loading Mohses::simulation_manager")
 
@@ -43,10 +50,13 @@ if (MOHSES_BUILD_SIMULATION_MANAGER)
                 Boost::headers
                 Boost::uuid
                 )
-        set_target_properties(mohses_simulation_manager PROPERTIES FOLDER ${CMAKE_FOLDER}/modules) 
+        set_target_properties(mohses_simulation_manager PROPERTIES 
+                 FOLDER ${CMAKE_FOLDER}/modules
+                 INSTALL_RPATH "\${ORIGIN}:\${ORIGIN}/../lib:\${ORIGIN}/lib"
+        ) 
 
         install(TARGETS mohses_simulation_manager RUNTIME DESTINATION bin)
-        install(DIRECTORY ../config DESTINATION bin)
+        install(DIRECTORY config DESTINATION bin)
 
         file(COPY config DESTINATION bin/)
 endif(MOHSES_BUILD_SIMULATION_MANAGER)

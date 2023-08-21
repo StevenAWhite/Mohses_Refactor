@@ -1,10 +1,10 @@
 #pragma once
 
-#include "amm_std.h"
+#include <mohses/net.h>
 
-#include "amm/Utility.h"
+#include <mohses/Utility.h>
 
-#include "amm/TopicNames.h"
+#include <mohses/TopicNames.h>
 
 #include <tinyxml2.h>
 

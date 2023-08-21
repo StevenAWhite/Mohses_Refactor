@@ -3,6 +3,7 @@
 #############################
 
 cmake_minimum_required(VERSION 3.25)
+cmake_policy(SET CMP0095 NEW)
 
 if( CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR )
         SET (MOHSES_BUILD_physiology_manager ON)
@@ -31,6 +32,12 @@ if (MOHSES_BUILD_physiology_manager)
 
         add_executable(mohses_physiology_manager ${physiology_manager_SOURCES})
         add_executable(Mohses::physiology_manager ALIAS mohses_physiology_manager)
+        add_custom_command(TARGET mohses_physiology_manager POST_BUILD
+                           COMMENT "Staging physiology_manager Config Files"
+                           COMMAND ${CMAKE_COMMAND} -E copy_directory 
+                                   ${CMAKE_CURRENT_SOURCE_DIR}/config/
+                                   $<TARGET_FILE_DIR:mohses_physiology_manager>/config
+                          ) 
 
         message(STATUS "Loading Mohses::physiology_manager")
 
@@ -53,10 +60,13 @@ if (MOHSES_BUILD_physiology_manager)
 #         stage_biogears_data(DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
 
-        set_target_properties(mohses_physiology_manager PROPERTIES FOLDER ${CMAKE_FOLDER}/modules) 
+        set_target_properties(mohses_physiology_manager PROPERTIES 
+                 FOLDER ${CMAKE_FOLDER}/modules 
+                 INSTALL_RPATH "\${ORIGIN}:\${ORIGIN}/../lib:\${ORIGIN}/lib"
+        ) 
 
         install(TARGETS mohses_physiology_manager RUNTIME DESTINATION bin)
-        install(DIRECTORY ../config DESTINATION bin)
+        install(DIRECTORY config DESTINATION bin)
 
         file(COPY config DESTINATION bin/)
 endif(MOHSES_BUILD_physiology_manager)

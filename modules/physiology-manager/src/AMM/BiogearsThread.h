@@ -9,9 +9,9 @@
 #include <stdexcept>
 #include <thread>
 
-#include "amm_std.h"
+#include <mohses/net.h>
 
-#include "amm/BaseLogger.h"
+#include <mohses/BaseLogger.h>
 
 // Boost dependencies
 #include <boost/algorithm/string.hpp>
@@ -113,7 +113,7 @@
 #include <biogears/cdm/scenario/SEScenarioExec.h>
 
 //#include "PhysiologyEngineManager.h"
-#include "amm/Utility.h"
+#include <mohses/Utility.h>
 
 using namespace biogears;
 

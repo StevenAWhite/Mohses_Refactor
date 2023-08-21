@@ -35,9 +35,31 @@ if (MSVC)
    endif ()
 endif ()
 
+set(OUTPUT_PREFIX ${CMAKE_BINARY_DIR}/artifacts)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${OUTPUT_PREFIX}/lib)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${OUTPUT_PREFIX}/lib)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_PREFIX}/bin)
+foreach(OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
+      string(TOUPPER _${OUTPUTCONFIG} OUTPUTCONFIG_UPPER)
+      set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY${OUTPUTCONFIG_UPPER} ${OUTPUT_PREFIX}/${OUTPUTCONFIG}/lib)
+      set(CMAKE_LIBRARY_OUTPUT_DIRECTORY${OUTPUTCONFIG_UPPER} ${OUTPUT_PREFIX}/${OUTPUTCONFIG}/lib)
+      set(CMAKE_RUNTIME_OUTPUT_DIRECTORY${OUTPUTCONFIG_UPPER} ${OUTPUT_PREFIX}/${OUTPUTCONFIG}/bin)
+endforeach()
+
+include (${CMAKE_SOURCE_DIR}/cmake/common_logic.cmake)
+if(NOT TARGET create_distribution_bundles)
+  ###############################################################################
+  # Stage Code for IDE Testing
+  ###############################################################################
+  create_stage()
+endif()
+
 find_package(Threads)
 set(USE_FOLDERS TRUE)
 option(MOHSES_FETCH_THIRDPARTY "This option will try to fetch third party dependencies for building" OFF)
+
+set(CMAKE_MACOSX_RPATH 1)
+
 add_subdirectory(thirdparty)
 add_subdirectory(libraries)
 add_subdirectory(modules)
@@ -45,6 +67,11 @@ add_subdirectory(modules)
 message(STATUS "")
 message(STATUS "    == Final overview for ${PROJECT_NAME} ==")
 message(STATUS "Version:              ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH} ${VERSION_TYPE} @ ${VERSION_HOST}")
+message(STATUS "Arch:                 ${CMAKE_SYSTEM_PROCESSOR}")
+message(STATUS "CMAKE_PREFIX_PATH:    ${CMAKE_PREFIX_PATH}")
+if (CMAKE_ROOT_FIND_PATH)
+  message(STATUS "CMAKE_ROOT_FIND_PATH: ${CMAKE_ROOT_FIND_PATH}")
+endif()
 message(STATUS "Install prefix:       ${CMAKE_INSTALL_PREFIX}")
 message(STATUS "Output:               ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
 message(STATUS "Compiler:             ${CMAKE_CXX_COMPILER}")

@@ -3,6 +3,7 @@
 #############################
 
 cmake_minimum_required(VERSION 3.25)
+cmake_policy(SET CMP0095 NEW)
 
 if( CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR )
         SET (MOHSES_BUILD_REST_ADAPTER ON)
@@ -35,6 +36,12 @@ if (MOHSES_BUILD_REST_ADAPTER AND NOT WIN32)
 
     add_executable(mohses_rest_adapter ${MODULE_MANAGER_SOURCES})
     add_executable(Mohses::rest_adapater ALIAS mohses_rest_adapter)
+        add_custom_command(TARGET mohses_rest_adapter POST_BUILD
+                           COMMENT "Staging rest_adapter Config Files"
+                           COMMAND ${CMAKE_COMMAND} -E copy_directory 
+                                   ${CMAKE_CURRENT_SOURCE_DIR}/config/
+                                   $<TARGET_FILE_DIR:mohses_rest_adapter>/config
+                          ) 
 
     message(STATUS "Loading Mohses::rest_adapater")
 
@@ -54,10 +61,14 @@ if (MOHSES_BUILD_REST_ADAPTER AND NOT WIN32)
             )
     set(CMAKE_CXX_STANDARD 20) 
     set(CMAKE_CXX_STANDARD_REQUIRED ON)
-    set_target_properties(mohses_rest_adapter PROPERTIES FOLDER ${CMAKE_FOLDER}/modules CXX_STANDARD 20) 
+    set_target_properties(mohses_rest_adapter PROPERTIES 
+                 FOLDER ${CMAKE_FOLDER}/modules 
+                 CXX_STANDARD 20
+                 INSTALL_RPATH "\${ORIGIN}:\${ORIGIN}/../lib:\${ORIGIN}/lib"
+    ) 
 
     install(TARGETS mohses_rest_adapter RUNTIME DESTINATION bin)
-    install(DIRECTORY ../config DESTINATION bin)
+    install(DIRECTORY config DESTINATION bin)
 
     file(COPY config DESTINATION bin/)
 
