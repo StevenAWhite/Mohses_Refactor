@@ -231,9 +231,21 @@ if (NOT XSD_CMAKE_GENERATOR )
 endif()
 
 #Missing Steps
-# OpenSSL
 # PISTACHE
 # PISTACHE BUILD SYSTEM
+find_package(OpenSSL QUIET GLOBAL)
+if(NOT OpenSSL_FOUND)
+  if(MSVC)
+     message(STATUS "OpenSSL binaries are required for this build. Downloads are avaliable for Windows at Shining Light Productions.\n"
+                    "https://slproweb.com/products/Win32OpenSSL.html . The full development installation of OpenSSL v3.1.1 140MBs.\n"
+                    "Adjust CMAKE_PREFIX_PATH with the folder containing the instllation.\n")
+  else()
+    Thirdparty_Build(openssl
+      GIT_REPOSITORY https://github.com/viaduck/openssl-cmake.git
+      GIT_TAG 3.0
+    )
+  endif()
+endif()
 
 Thirdparty_Build(boost
   GIT_REPOSITORY https://github.com/boostorg/boost.git
@@ -273,7 +285,9 @@ Thirdparty_Build(fastddr
 
 ExternalProject_Add_StepDependencies(fastddr build tinyxml2)
 ExternalProject_Add_StepDependencies(fastddr build foonathan_memory)
-ExternalProject_Add_StepDependencies(fastddr build openssl)
+if(TARGET openssl)
+  ExternalProject_Add_StepDependencies(fastddr build openssl)
+endif()
 ExternalProject_Add_StepDependencies(fastddr build fastcdr)
 
 Thirdparty_Build(rapidjson
