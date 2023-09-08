@@ -2,7 +2,7 @@
 # CMake - TCP Bridge Module - root
 #############################
 
-cmake_minimum_required(VERSION 3.5.1)
+cmake_minimum_required(VERSION 3.18.0)
 cmake_policy(SET CMP0095 NEW)
 
 #############################
