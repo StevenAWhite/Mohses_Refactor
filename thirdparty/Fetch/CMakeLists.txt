@@ -256,6 +256,7 @@ Thirdparty_Build(tinyxml2
   GIT_REPOSITORY https://github.com/leethomason/tinyxml2.git
   GIT_TAG 8.1.0
   CMAKE_ARGS -Dtinyxml2_BUILD_TESTING:BOOL=OFF
+             -DBUILD_SHARED_LIBS:BOOL=ON
 
 )
 
@@ -341,7 +342,7 @@ endif()
 Thirdparty_Build(biogears
   GIT_REPOSITORY #ssh://git@sed-stash.us.ara.com:7999/bg/core.git
              https://github.com/BioGearsEngine/core.git
-  GIT_TAG  2f90ae1aad102f7409acfe074b22320a7230a1f4
+  GIT_TAG  trunk
   CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
              -DBiogears_NO_DEBUG_POSTIFX=ON
              -DCMAKE_DEBUG_POSTFIX=
