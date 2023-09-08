@@ -56,13 +56,21 @@ endif()
 
 find_package(Threads)
 set(USE_FOLDERS TRUE)
-option(MOHSES_FETCH_THIRDPARTY "This option will try to fetch third party dependencies for building" OFF)
 
 set(CMAKE_MACOSX_RPATH 1)
 
+option(MOHSES_FETCH_THIRDPARTY "This option will try to fetch third party dependencies for building" OFF)
 add_subdirectory(thirdparty)
-add_subdirectory(libraries)
-add_subdirectory(modules)
+
+if ( NOT MOHSES_FETCH_THIRDPARTY )
+  add_subdirectory(libraries)
+  add_subdirectory(modules)
+else()
+  message(STATUS "MOHSES_FETCH_THIRDPARTY=ON
+   After successfully installing ThirdParrty Builds
+   Set MOHSES_FETCH_THIRDPARTY=ON and CMAKE_PREFIX_PATH
+   to the THIRDPARTY_INSTALL_PATH to build mohses")
+endif()
 
 message(STATUS "")
 message(STATUS "    == Final overview for ${PROJECT_NAME} ==")

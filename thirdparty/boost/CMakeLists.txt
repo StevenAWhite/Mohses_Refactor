@@ -6,6 +6,13 @@ set(PACKAGE_NAME Boost)
 set(FETCH_NAME boost)
 set(PACKAGE_PREFIX BOOST)
 
+if (MOHSES_FETCH_THIRDPARTY)
+  Thirdparty_Build(${PACKAGE_NAME}
+    GIT_REPOSITORY ${GIT_REPOSITORY}
+    GIT_TAG ${GIT_TAG}
+  )
+endif()
+
 
 find_package(${PACKAGE_NAME} REQUIRED COMPONENTS filesystem program_options serialization system thread GLOBAL)
 
