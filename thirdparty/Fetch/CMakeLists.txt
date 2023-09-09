@@ -113,7 +113,7 @@ string(APPEND Status_Message "\t\tCMAKE_ARGS")
 
 set(INSTALL_DIR  "../${_target_name}")
 set(BINARY_DIR   "../${_target_name}/build/")
-set(SOURCE_DIR   "../${_target_name}/src/")
+set(SOURCE_DIR   "../${_target_name}/source/")
 set(DOWNLOAD_DIR "../${_target_name}/stage/")
 set(STAMP_DIR    "../${_target_name}/stamp/")
 set(LOG_DIR      "../${_target_name}/logs/")
@@ -340,8 +340,7 @@ if(ANDROID)
 endif()
 
 Thirdparty_Build(biogears
-  GIT_REPOSITORY #ssh://git@sed-stash.us.ara.com:7999/bg/core.git
-             https://github.com/BioGearsEngine/core.git
+  GIT_REPOSITORY https://github.com/BioGearsEngine/core.git
   GIT_TAG  trunk
   CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
              -DBiogears_NO_DEBUG_POSTIFX=ON
@@ -363,3 +362,82 @@ Thirdparty_Build(biogears
 
   ExternalProject_Add_StepDependencies(biogears build xsd)
   ExternalProject_Add_StepDependencies(biogears build eigen)
+
+
+Thirdparty_Build(zlib
+  GIT_REPOSITORY https://github.com/madler/zlib.git
+  GIT_TAG master
+)
+
+######
+#
+# Pistache -- 
+# https://github.com/pistacheio/pistache.git
+#####
+
+find_program (MESON_EXECUTABLE 
+              NAMES meson)
+
+if (MESON_EXECUTABLE)
+
+get_filename_component(ABSOLUTE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}" ABSOLUTE)
+
+ExternalProject_Add( 
+  pistache
+  INSTALL_DIR  "${CMAKE_CURRENT_BINARY_DIR}/pistache"
+  BINARY_DIR   "${CMAKE_CURRENT_BINARY_DIR}/pistache/build/"
+  SOURCE_DIR   "${CMAKE_CURRENT_BINARY_DIR}/pistache/source/"
+  DOWNLOAD_DIR "${CMAKE_CURRENT_BINARY_DIR}/pistache/stage/"
+  STAMP_DIR    "${CMAKE_CURRENT_BINARY_DIR}/pistache/stamps/"
+  LOG_DIR      "${CMAKE_CURRENT_BINARY_DIR}/pistache/logs/"
+  GIT_REPOSITORY "https://github.com/pistacheio/pistache.git"
+  GIT_TAG "master"
+  LIST_SEPARATOR |
+  CONFIGURE_COMMAND 
+    meson setup 
+    --buildtype=release
+    -DPISTACHE_USE_SSL=true
+    -DPISTACHE_BUILD_EXAMPLES=false
+    -DPISTACHE_BUILD_TESTS=false
+    -DPISTACHE_BUILD_DOCS=false
+    -DPISTACHE_USE_CONTENT_ENCODING_DEFLATE=true
+    --prefix=${ABSOLUTE_INSTALL_PREFIX}
+    --pkg-config-path=${ABSOLUTE_INSTALL_PREFIX}
+    --cmake-prefix-path=${ABSOLUTE_INSTALL_PREFIX}
+    ${CMAKE_CURRENT_BINARY_DIR}/pistache/build/
+    ${CMAKE_CURRENT_BINARY_DIR}/pistache/source/
+  BUILD_COMMAND 
+    meson compile -C ${CMAKE_CURRENT_BINARY_DIR}/pistache/build/
+  INSTALL_COMMAND
+    meson install -C ${CMAKE_CURRENT_BINARY_DIR}/pistache/build/
+)
+
+message(STATUS 
+   "Pistache \n"
+   "\tExternalProject_Add\" \n"
+   "\t\tGIT_REPOSITORY https://github.com/pistacheio/pistache.git \n"
+   "\t\tGIT_TAG master \n"
+   "\t\tCMAKE_ARGS\n"
+   "\t\tCONFIGURE_COMMAND\n"
+   "\t\t    meson setup\n"
+   "\t\t    --buildtype=release\n"
+   "\t\t    -DPISTACHE_USE_SSL=true\n"
+   "\t\t    -DPISTACHE_BUILD_EXAMPLES=false\n"
+   "\t\t    -DPISTACHE_BUILD_TESTS=false\n"
+   "\t\t    -DPISTACHE_BUILD_DOCS=false\n"
+   "\t\t    -DPISTACHE_USE_CONTENT_ENCODING_DEFLATE=true\n"
+   "\t\t    --prefix=\"${ABSOLUTE_INSTALL_PREFIX}\"\n"
+   "\t\t    ${CMAKE_CURRENT_BINARY_DIR}/pistache/build/\n"
+   "\t\t    ${CMAKE_CURRENT_BINARY_DIR}/pistache/source/\n"
+   "\t\t  BUILD_COMMAND\n"
+   "\t\t    meson compile -C ${CMAKE_CURRENT_BINARY_DIR}/pistache/build/\n"
+   "\t\t  INSTALL_COMMAND\n"
+   "\t\t    meson install -C ${CMAKE_CURRENT_BINARY_DIR}/pistache/build/\n"
+)
+else()
+  message(ERROR "Meson build system not found.  Pistache requires meson to be installed")
+endif()
+
+ExternalProject_Add_StepDependencies(pistache build zlib)
+ExternalProject_Add_StepDependencies(pistache build rapidjson)
+
