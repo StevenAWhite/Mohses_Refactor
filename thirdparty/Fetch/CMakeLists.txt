@@ -173,8 +173,8 @@ else()
     CMAKE_ARGS  -G "${CMAKE_GENERATOR}"
           ${_CMAKE_ARGS}
           ${CMAKE_TOOLCHAIN_ARGUMENTS}
-		  ${ANDROID_STL_ARGUMENTS}
-		  ${ANDROID_CPP_FEATURES_ARGUMENTS}
+	    	  ${ANDROID_STL_ARGUMENTS}
+		      ${ANDROID_CPP_FEATURES_ARGUMENTS}
           ${ANDROID_ABI_ARGUMENTS}
           ${ANDROID_ARM_NEON_ARGUMENTS}
           ${ANDROID_PLATFORM_ARGUMENTS}
@@ -230,9 +230,6 @@ if (NOT XSD_CMAKE_GENERATOR )
 	set(XSD_CMAKE_GENERATOR ${CMAKE_GENERATOR})
 endif()
 
-#Missing Steps
-# PISTACHE
-# PISTACHE BUILD SYSTEM
 find_package(OpenSSL QUIET GLOBAL)
 if(NOT OpenSSL_FOUND)
   if(MSVC)
@@ -247,197 +244,257 @@ if(NOT OpenSSL_FOUND)
   endif()
 endif()
 
-Thirdparty_Build(boost
-  GIT_REPOSITORY https://github.com/boostorg/boost.git
-  GIT_TAG boost-1.82.0
-)
-
-Thirdparty_Build(tinyxml2
-  GIT_REPOSITORY https://github.com/leethomason/tinyxml2.git
-  GIT_TAG 8.1.0
-  CMAKE_ARGS -Dtinyxml2_BUILD_TESTING:BOOL=OFF
-             -DBUILD_SHARED_LIBS:BOOL=ON
-
-)
-
-Thirdparty_Build(foonathan_memory
-  GIT_REPOSITORY  https://github.com/foonathan/memory.git
-  GIT_TAG v0.7-3
-  CMAKE_ARGS -Dfoonathan_memory_BUILD_EXAMPLES:BOOL=OFF
-             -Dfoonathan_memory_BUILD_TESTS:BOOL=OFF
-             -Dfoonathan_memory_BUILD_TOOLS:BOOL=ON
-)
-
-Thirdparty_Build(SQLite3
-  GIT_REPOSITORY  https://github.com/azadkuh/sqlite-amalgamation.git
-  GIT_TAG master
-)
-
-Thirdparty_Build(fastcdr
-  GIT_REPOSITORY  https://github.com/eProsima/Fast-CDR.git
-  GIT_TAG v1.0.27
-)
-
-Thirdparty_Build(fastddr
-  GIT_REPOSITORY  https://github.com/eProsima/Fast-DDS.git
-  GIT_TAG v2.10.0
-  CMAKE_ARGS -DTHIRDPARTY_Asio:BOOL=ON
-)
-
-ExternalProject_Add_StepDependencies(fastddr build tinyxml2)
-ExternalProject_Add_StepDependencies(fastddr build foonathan_memory)
-if(TARGET openssl)
-  ExternalProject_Add_StepDependencies(fastddr build openssl)
+find_package(Boost QUIET GLOBAL)
+if(NOT Boost_FOUND)
+  Thirdparty_Build(boost
+    GIT_REPOSITORY https://github.com/boostorg/boost.git
+    GIT_TAG boost-1.82.0
+  )
 endif()
-ExternalProject_Add_StepDependencies(fastddr build fastcdr)
 
-Thirdparty_Build(rapidjson
-  GIT_REPOSITORY  https://github.com/Tencent/rapidjson.git
-  GIT_TAG v1.1.0
-  CMAKE_ARGS -DRAPIDJSON_BUILD_DOC:BOOL=OFF
-             -DRAPIDJSON_BUILD_EXAMPLES:BOOL=OFF
-             -DRAPIDJSON_BUILD_TESTS:BOOL=OFF
-)
+find_package(TinyXML2 QUIET GLOBAL)
+if(NOT TinyXML2_FOUND)
+  Thirdparty_Build(tinyxml2
+    GIT_REPOSITORY https://github.com/leethomason/tinyxml2.git
+    GIT_TAG 8.1.0
+    CMAKE_ARGS -Dtinyxml2_BUILD_TESTING:BOOL=OFF
+               -DBUILD_SHARED_LIBS:BOOL=ON
+  
+  )
+endif()
 
-Thirdparty_Build(xsd
-  GIT_REPOSITORY https://github.com/StevenAWhite/CodeSynthesisXSD-Binary.git
-  NATIVE_CODE
-  CMAKE_ARGS    -D XSD_CROSS_INSTALL:BOOL=${CROSS_BUILD}
-)
+find_package(foonathan_memory QUIET GLOBAL)
+if(NOT foonathan_memory_FOUND)
+  Thirdparty_Build(foonathan_memory
+    GIT_REPOSITORY  https://github.com/foonathan/memory.git
+    GIT_TAG v0.7-3
+    CMAKE_ARGS -Dfoonathan_memory_BUILD_EXAMPLES:BOOL=OFF
+               -Dfoonathan_memory_BUILD_TESTS:BOOL=OFF
+               -Dfoonathan_memory_BUILD_TOOLS:BOOL=ON
+  )
+endif()
 
-Thirdparty_Build(xerces-c
-  GIT_REPOSITORY https://github.com/apache/xerces-c.git
-  GIT_TAG xerces-3.2.2
-  CMAKE_ARGS ${XERCES_C_TRANSCORDER_ARGUMENTS}
-)
+find_package(SQLite3 QUIET GLOBAL)
+if(NOT SQLite3_FOUND)
+  Thirdparty_Build(SQLite3
+    GIT_REPOSITORY  https://github.com/azadkuh/sqlite-amalgamation.git
+    GIT_TAG master
+  )
+endif()
 
-ExternalProject_Add_StepDependencies(xsd build xerces-c)
+find_package(fastcrr QUIET GLOBAL)
+if(NOT fastcdr_FOUND)
+  Thirdparty_Build(fastcdr
+    GIT_REPOSITORY  https://github.com/eProsima/Fast-CDR.git
+    GIT_TAG v1.0.27
+  )
+endif()
+
+find_package(fastddr QUIET GLOBAL)
+if(NOT fastddr_FOUND)
+  Thirdparty_Build(fastddr
+    GIT_REPOSITORY  https://github.com/eProsima/Fast-DDS.git
+    GIT_TAG v2.10.0
+    CMAKE_ARGS -DTHIRDPARTY_Asio:BOOL=ON
+  )
+
+  if(TARGET tinyxml2) 
+    ExternalProject_Add_StepDependencies(fastddr build tinyxml2)
+  endif()
+
+  if(TARGET foonathan_memory)  
+    ExternalProject_Add_StepDependencies(fastddr build foonathan_memory)
+  endif()
+
+  if(TARGET openssl)
+    ExternalProject_Add_StepDependencies(fastddr build openssl)
+  endif()
+
+  if(TARGET fastcdr)
+   ExternalProject_Add_StepDependencies(fastddr build fastcdr)
+  endif()
+
+endif()
+
+find_package(rapidjson QUIET GLOBAL)
+if(NOT rapidjson_FOUND)
+  Thirdparty_Build(rapidjson
+    GIT_REPOSITORY  https://github.com/Tencent/rapidjson.git
+    GIT_TAG v1.1.0
+    CMAKE_ARGS -DRAPIDJSON_BUILD_DOC:BOOL=OFF
+               -DRAPIDJSON_BUILD_EXAMPLES:BOOL=OFF
+               -DRAPIDJSON_BUILD_TESTS:BOOL=OFF
+  )
+endif()
+
+find_package(foonathan_memory QUIET GLOBAL)
+if(NOT foonathan_memory_FOUND)
+  Thirdparty_Build(xerces-c
+    GIT_REPOSITORY https://github.com/apache/xerces-c.git
+    GIT_TAG xerces-3.2.2
+    CMAKE_ARGS ${XERCES_C_TRANSCORDER_ARGUMENTS}
+  )
+endif()
+
+find_package(xsd QUIET GLOBAL)
+if(NOT xsd_FOUND)
+  Thirdparty_Build(xsd
+    GIT_REPOSITORY https://github.com/StevenAWhite/CodeSynthesisXSD-Binary.git
+    NATIVE_CODE
+    CMAKE_ARGS    -D XSD_CROSS_INSTALL:BOOL=${CROSS_BUILD}
+  )
+
+  if(TARGET xerces-c)
+    ExternalProject_Add_StepDependencies(xsd build xerces-c)
+  endif()
+endif()
+
 
 if(ANDROID)
-  #
   # Android doesn't ship with a good transcoder for UTF
   # Characters so we need to build it
 
   Thirdparty_Build(icu
     GIT_REPOSITORY https://github.com/StevenAWhite/icu-cmake.git
   )
-  ExternalProject_Add_StepDependencies(xerces-c build icu)
+  if(TARGET icu AND TARGET xerces-c)
+    ExternalProject_Add_StepDependencies(xerces-c build icu)
+  endif()
+endif()
+
+find_package(Eigen3 QUIET GLOBAL)
+if(NOT Eigen3_FOUND)
+  Thirdparty_Build(eigen
+    GIT_REPOSITORY https://gitlab.com/stevenawhite/eigen.git
+    GIT_TAG 3.3.9.X
+    CMAKE_ARGS 
+               -DBUILD_TESTING:BOOL=OFF
+               -DEIGEN_BUILD_BTL:BOOL=OFF
+               -DEIGEN_HEADER_ONLY:BOOL=ON
+  )
+endif()
+
+find_package(Biogears QUIET GLOBAL)
+if(Biogears_FOUND)
+  Thirdparty_Build(biogears
+    GIT_REPOSITORY https://github.com/BioGearsEngine/core.git
+    GIT_TAG  trunk
+    CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+               -DBiogears_NO_DEBUG_POSTIFX=ON
+               -DCMAKE_DEBUG_POSTFIX=
+               -DBiogears_COMMON_BUILD_STATIC=OFF
+               -DBiogears_BUILD_HOWTOS:BOOL=OFF
+               -DBiogears_BUILD_CIRCUIT_TESTS:BOOL=OFF
+               -DBiogears_BUILD_CIRCUIT_PROFILER:BOOL=OFF
+               -DBiogears_BUILD_TEST_DRIVER:BOOL=OFF
+               -DBiogears_BUILD_TEST:BOOL=OFF
+               -DBiogears_BUILD_WEBSITE:BOOL=OFF
+               -DBiogears_BUILD_TOOLS:BOOL=ON
+               -DBiogears_IO_INCLUDE_STATES:BOOL=ON
+               -DBiogears_PREPARE_RUNTIME_DIR:BOOL=OFF
+               -DBiogears_BREAKOUT_INSTALL:BOOL=OFF
+               -DBiogears_IO_USE_SHORT_TARGET_NAMES=ON
+               -DXSD_USE_SHORT_TARGET_NAMES=ON
+  )
+  
+  if(TARGET xsd)  
+    ExternalProject_Add_StepDependencies(biogears build xsd)
+  endif()
+
+  if(TARGET eigen)
+    ExternalProject_Add_StepDependencies(biogears build eigen)
+  endif()
 
 endif()
 
-
-Thirdparty_Build(eigen
-  GIT_REPOSITORY https://gitlab.com/stevenawhite/eigen.git
-  GIT_TAG 3.3.9.X
-  CMAKE_ARGS 
-             -DBUILD_TESTING:BOOL=OFF
-             -DEIGEN_BUILD_BTL:BOOL=OFF
-             -DEIGEN_HEADER_ONLY:BOOL=ON
-)
-
-if(ANDROID)
- #set(CMAKE_BUILD_TYPE "Debug")
+find_package(zlib QUIET GLOBAL)
+if(NOT zlib_FOUND)
+  Thirdparty_Build(zlib
+    GIT_REPOSITORY https://github.com/madler/zlib.git
+    GIT_TAG master
+  )
 endif()
-
-Thirdparty_Build(biogears
-  GIT_REPOSITORY https://github.com/BioGearsEngine/core.git
-  GIT_TAG  trunk
-  CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-             -DBiogears_NO_DEBUG_POSTIFX=ON
-             -DCMAKE_DEBUG_POSTFIX=
-             -DBiogears_COMMON_BUILD_STATIC=OFF
-             -DBiogears_BUILD_HOWTOS:BOOL=OFF
-             -DBiogears_BUILD_CIRCUIT_TESTS:BOOL=OFF
-             -DBiogears_BUILD_CIRCUIT_PROFILER:BOOL=OFF
-             -DBiogears_BUILD_TEST_DRIVER:BOOL=OFF
-             -DBiogears_BUILD_TEST:BOOL=OFF
-             -DBiogears_BUILD_WEBSITE:BOOL=OFF
-             -DBiogears_BUILD_TOOLS:BOOL=ON
-             -DBiogears_IO_INCLUDE_STATES:BOOL=ON
-             -DBiogears_PREPARE_RUNTIME_DIR:BOOL=OFF
-             -DBiogears_BREAKOUT_INSTALL:BOOL=OFF
-             -DBiogears_IO_USE_SHORT_TARGET_NAMES=ON
-             -DXSD_USE_SHORT_TARGET_NAMES=ON
-)
-
-  ExternalProject_Add_StepDependencies(biogears build xsd)
-  ExternalProject_Add_StepDependencies(biogears build eigen)
-
-
-Thirdparty_Build(zlib
-  GIT_REPOSITORY https://github.com/madler/zlib.git
-  GIT_TAG master
-)
 
 ######
 #
 # Pistache -- 
 # https://github.com/pistacheio/pistache.git
 #####
+find_package(PkgConfig)
+pkg_check_modules(Pistache QUIET IMPORTED_TARGET libpistache)
 
-find_program (MESON_EXECUTABLE 
-              NAMES meson)
+if(TARGET PkgConfig::Pistache)
+  if (NOT MSVC)
+    find_program (MESON_EXECUTABLE 
+                  NAMES meson)
+    
+    if (MESON_EXECUTABLE)
+    
+    get_filename_component(ABSOLUTE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}" ABSOLUTE)
+    
+    ExternalProject_Add( 
+      pistache
+      INSTALL_DIR  "${CMAKE_CURRENT_BINARY_DIR}/pistache"
+      BINARY_DIR   "${CMAKE_CURRENT_BINARY_DIR}/pistache/build/"
+      SOURCE_DIR   "${CMAKE_CURRENT_BINARY_DIR}/pistache/source/"
+      DOWNLOAD_DIR "${CMAKE_CURRENT_BINARY_DIR}/pistache/stage/"
+      STAMP_DIR    "${CMAKE_CURRENT_BINARY_DIR}/pistache/stamps/"
+      LOG_DIR      "${CMAKE_CURRENT_BINARY_DIR}/pistache/logs/"
+      GIT_REPOSITORY "https://github.com/pistacheio/pistache.git"
+      GIT_TAG "master"
+      LIST_SEPARATOR |
+      CONFIGURE_COMMAND 
+        meson setup 
+        --buildtype=release
+        -DPISTACHE_USE_SSL=true
+        -DPISTACHE_BUILD_EXAMPLES=false
+        -DPISTACHE_BUILD_TESTS=false
+        -DPISTACHE_BUILD_DOCS=false
+        -DPISTACHE_USE_CONTENT_ENCODING_DEFLATE=true
+        --prefix=${ABSOLUTE_INSTALL_PREFIX}
+        --pkg-config-path=${ABSOLUTE_INSTALL_PREFIX}
+        --cmake-prefix-path=${ABSOLUTE_INSTALL_PREFIX}
+        ${CMAKE_CURRENT_BINARY_DIR}/pistache/build/
+        ${CMAKE_CURRENT_BINARY_DIR}/pistache/source/
+      BUILD_COMMAND 
+        meson compile -C ${CMAKE_CURRENT_BINARY_DIR}/pistache/build/
+      INSTALL_COMMAND
+        meson install -C ${CMAKE_CURRENT_BINARY_DIR}/pistache/build/
+    )
 
-if (MESON_EXECUTABLE)
+    if(TARGET zlib) 
+      ExternalProject_Add_StepDependencies(pistache build zlib)
+    endif()
+   
+    if(TARGET rapidjson)
+      ExternalProject_Add_StepDependencies(pistache build rapidjson)
+    endif()
 
-get_filename_component(ABSOLUTE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}" ABSOLUTE)
-
-ExternalProject_Add( 
-  pistache
-  INSTALL_DIR  "${CMAKE_CURRENT_BINARY_DIR}/pistache"
-  BINARY_DIR   "${CMAKE_CURRENT_BINARY_DIR}/pistache/build/"
-  SOURCE_DIR   "${CMAKE_CURRENT_BINARY_DIR}/pistache/source/"
-  DOWNLOAD_DIR "${CMAKE_CURRENT_BINARY_DIR}/pistache/stage/"
-  STAMP_DIR    "${CMAKE_CURRENT_BINARY_DIR}/pistache/stamps/"
-  LOG_DIR      "${CMAKE_CURRENT_BINARY_DIR}/pistache/logs/"
-  GIT_REPOSITORY "https://github.com/pistacheio/pistache.git"
-  GIT_TAG "master"
-  LIST_SEPARATOR |
-  CONFIGURE_COMMAND 
-    meson setup 
-    --buildtype=release
-    -DPISTACHE_USE_SSL=true
-    -DPISTACHE_BUILD_EXAMPLES=false
-    -DPISTACHE_BUILD_TESTS=false
-    -DPISTACHE_BUILD_DOCS=false
-    -DPISTACHE_USE_CONTENT_ENCODING_DEFLATE=true
-    --prefix=${ABSOLUTE_INSTALL_PREFIX}
-    --pkg-config-path=${ABSOLUTE_INSTALL_PREFIX}
-    --cmake-prefix-path=${ABSOLUTE_INSTALL_PREFIX}
-    ${CMAKE_CURRENT_BINARY_DIR}/pistache/build/
-    ${CMAKE_CURRENT_BINARY_DIR}/pistache/source/
-  BUILD_COMMAND 
-    meson compile -C ${CMAKE_CURRENT_BINARY_DIR}/pistache/build/
-  INSTALL_COMMAND
-    meson install -C ${CMAKE_CURRENT_BINARY_DIR}/pistache/build/
-)
-
-message(STATUS 
-   "Pistache \n"
-   "\tExternalProject_Add\" \n"
-   "\t\tGIT_REPOSITORY https://github.com/pistacheio/pistache.git \n"
-   "\t\tGIT_TAG master \n"
-   "\t\tCMAKE_ARGS\n"
-   "\t\tCONFIGURE_COMMAND\n"
-   "\t\t    meson setup\n"
-   "\t\t    --buildtype=release\n"
-   "\t\t    -DPISTACHE_USE_SSL=true\n"
-   "\t\t    -DPISTACHE_BUILD_EXAMPLES=false\n"
-   "\t\t    -DPISTACHE_BUILD_TESTS=false\n"
-   "\t\t    -DPISTACHE_BUILD_DOCS=false\n"
-   "\t\t    -DPISTACHE_USE_CONTENT_ENCODING_DEFLATE=true\n"
-   "\t\t    --prefix=\"${ABSOLUTE_INSTALL_PREFIX}\"\n"
-   "\t\t    ${CMAKE_CURRENT_BINARY_DIR}/pistache/build/\n"
-   "\t\t    ${CMAKE_CURRENT_BINARY_DIR}/pistache/source/\n"
-   "\t\t  BUILD_COMMAND\n"
-   "\t\t    meson compile -C ${CMAKE_CURRENT_BINARY_DIR}/pistache/build/\n"
-   "\t\t  INSTALL_COMMAND\n"
-   "\t\t    meson install -C ${CMAKE_CURRENT_BINARY_DIR}/pistache/build/\n"
-)
-else()
-  message(ERROR "Meson build system not found.  Pistache requires meson to be installed")
+    message(STATUS 
+       "Pistache \n"
+       "\tExternalProject_Add\" \n"
+       "\t\tGIT_REPOSITORY https://github.com/pistacheio/pistache.git \n"
+       "\t\tGIT_TAG master \n"
+       "\t\tCMAKE_ARGS\n"
+       "\t\tCONFIGURE_COMMAND\n"
+       "\t\t    meson setup\n"
+       "\t\t    --buildtype=release\n"
+       "\t\t    -DPISTACHE_USE_SSL=true\n"
+       "\t\t    -DPISTACHE_BUILD_EXAMPLES=false\n"
+       "\t\t    -DPISTACHE_BUILD_TESTS=false\n"
+       "\t\t    -DPISTACHE_BUILD_DOCS=false\n"
+       "\t\t    -DPISTACHE_USE_CONTENT_ENCODING_DEFLATE=true\n"
+       "\t\t    --prefix=\"${ABSOLUTE_INSTALL_PREFIX}\"\n"
+       "\t\t    ${CMAKE_CURRENT_BINARY_DIR}/pistache/build/\n"
+       "\t\t    ${CMAKE_CURRENT_BINARY_DIR}/pistache/source/\n"
+       "\t\t  BUILD_COMMAND\n"
+       "\t\t    meson compile -C ${CMAKE_CURRENT_BINARY_DIR}/pistache/build/\n"
+       "\t\t  INSTALL_COMMAND\n"
+       "\t\t    meson install -C ${CMAKE_CURRENT_BINARY_DIR}/pistache/build/\n"
+    )
+    else()
+      message(ERROR "Meson build system not found.  Pistache requires meson to be installed")
+    endif()
+  endif()
 endif()
-
-ExternalProject_Add_StepDependencies(pistache build zlib)
-ExternalProject_Add_StepDependencies(pistache build rapidjson)
 
