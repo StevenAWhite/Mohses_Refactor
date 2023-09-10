@@ -291,9 +291,10 @@ find_path(CodeSynthesis_INCLUDE_DIR
             PATH_SUFFIXES "bin" )
 
 include(CMakeFindDependencyMacro)
-find_package(XercesC CONFIG QUIET)
-find_dependency(XercesC )
-
+if(NOT TARGET XercesC::XercesC)
+  find_package(XercesC CONFIG QUIET)
+  find_dependency(XercesC)
+endif()
 # handle the QUIETLY and REQUIRED arguments and set CodeSynthesis_FOUND to TRUE if
 # all listed variables are TRUE
 include(FindPackageHandleStandardArgs)
