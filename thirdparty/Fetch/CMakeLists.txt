@@ -33,6 +33,8 @@ include(ExternalProject)
 #  XSD is installed in the CMAKE_INSTALL_PREFIX except when CMAKE_FIND_ROOT_PATH_MODE_PROGRAM is NEVER
 #  Then it is installed in CMAKE_INSTALL_PREFIX/${CMAKE_HOST_SYSTEM_NAME}
 
+set(FETCHCONTENT_QUIET OFF)
+
 function (sanatize_path_list path_list results)
   set(${results} "")
   foreach( path IN LISTS ${path_list})
@@ -100,6 +102,15 @@ if(XERCES_C_transcoder)
   set(XERCES_C_TRANSCORDER_ARGUMENTS -D transcoder:STRING=${_safe_find_root})
 endif()
 
+if (NOT _GIT_SHALLOW)
+  set(_GIT_SHALLOW FALSE)
+endif()
+if (NOT _GIT_PROGRESS)
+  set(_GIT_PROGRESS TRUE)
+endif()
+if (NOT _USES_TERMINAL_DOWNLOAD)
+  set(_USES_TERMINAL_DOWNLOAD TRUE)
+endif()
 
 function(Thirdparty_build _target_name) 
 cmake_parse_arguments("" "NATIVE_CODE" "GIT_REPOSITORY;GIT_TAG" "CMAKE_ARGS" ${ARGN})
@@ -108,6 +119,8 @@ set(Status_Message "\"${_target_name}\" \n")
 string(APPEND Status_Message "\tExternalProject_Add\" \n")
 string(APPEND Status_Message "\t\tGIT_REPOSITORY \"${_GIT_REPOSITORY}\" \n")
 string(APPEND Status_Message "\t\tGIT_TAG \"${_GIT_TAG}\" \n")
+string(APPEND Status_Message "\t\tGIT_PROGRESS \"${_GIT_PROGRESS}\" \n")
+string(APPEND Status_Message "\t\tGIT_SHALLOW \"${_GIT_SHALLOW}\" \n")
 string(APPEND Status_Message "\t\tCMAKE_ARGS")
 
 
@@ -133,6 +146,9 @@ if(_NATIVE_CODE)
             LOG_DIR      ${LOG_DIR}
             GIT_REPOSITORY "${_GIT_REPOSITORY}"
             GIT_TAG "${_GIT_TAG}"
+            GIT_SHALLOW ${_GIT_SHALLOW}
+            GIT_PROGRESS ${_GIT_PROGRESS}
+            USES_TERMINAL_DOWNLOAD ${_USES_TERMINAL_DOWNLOAD}
             LIST_SEPARATOR |
             CMAKE_ARGS
                         ${_CMAKE_ARGS}
@@ -151,6 +167,9 @@ if(_NATIVE_CODE)
             LOG_DIR      ${LOG_DIR}
             GIT_REPOSITORY "${_GIT_REPOSITORY}"
             GIT_TAG "${_GIT_TAG}"
+            GIT_SHALLOW ${_GIT_SHALLOW}
+            GIT_PROGRESS ${_GIT_PROGRESS}
+            USES_TERMINAL_DOWNLOAD ${_USES_TERMINAL_DOWNLOAD}
             LIST_SEPARATOR |
             CMAKE_GENERATOR "${NATIVE_CODE_GENERATOR_ARGUMENTS}"
             CMAKE_ARGS  ${_CMAKE_ARGS}
@@ -169,11 +188,14 @@ else()
     LOG_DIR      ${LOG_DIR}
     GIT_REPOSITORY "${_GIT_REPOSITORY}"
     GIT_TAG "${_GIT_TAG}"
+    GIT_SHALLOW ${_GIT_SHALLOW}
+    GIT_PROGRESS ${_GIT_PROGRESS}
+    USES_TERMINAL_DOWNLOAD ${_USES_TERMINAL_DOWNLOAD}
     LIST_SEPARATOR |
     CMAKE_ARGS  -G "${CMAKE_GENERATOR}"
           ${_CMAKE_ARGS}
           ${CMAKE_TOOLCHAIN_ARGUMENTS}
-	  ${ANDROID_STL_ARGUMENTS}
+          ${ANDROID_STL_ARGUMENTS}
           ${ANDROID_CPP_FEATURES_ARGUMENTS}
           ${ANDROID_ABI_ARGUMENTS}
           ${ANDROID_ARM_NEON_ARGUMENTS}
@@ -237,10 +259,72 @@ if(NOT OpenSSL_FOUND)
                     "https://slproweb.com/products/Win32OpenSSL.html . The full development installation of OpenSSL v3.1.1 140MBs.\n"
                     "Adjust CMAKE_PREFIX_PATH with the folder containing the instllation.\n")
   else()
-    Thirdparty_Build(openssl
-      GIT_REPOSITORY https://github.com/viaduck/openssl-cmake.git
-      GIT_TAG 3.0
-    )
+    find_program (GNUMAKE_EXECUTABLE 
+                  NAMES make)
+    find_package(Perl REQUIRED)
+    if( Perl_FOUND AND GNUMAKE_EXECUTABLE )
+       get_filename_component(ABSOLUTE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}" ABSOLUTE)
+    
+       string(REGEX MATCH "(.*-)\\w+" TOOL_PREFIX ${CMAKE_C_COMPILER})
+       if ( CMAKE_SYSTEM_PROCESSOR STREQUAL x86_64)
+         set(TARGET linux-x86_64-linux-gnu)
+         set(TOOL_PREFIX )
+       elseif ( CMAKE_SYSTEM_PROCESSOR STREQUAL armv7 )
+         set(TARGET linux-aarch64)
+       elseif ( CMAKE_SYSTEM_PROCESSOR STREQUAL armv8 )
+         set(TARGET linux-armel)
+       endif()
+
+       ExternalProject_Add( 
+         openssl
+         INSTALL_DIR  "${CMAKE_CURRENT_BINARY_DIR}/openssl"
+         BINARY_DIR   "${CMAKE_CURRENT_BINARY_DIR}/openssl/build/"
+         SOURCE_DIR   "${CMAKE_CURRENT_BINARY_DIR}/openssl/source/"
+         DOWNLOAD_DIR "${CMAKE_CURRENT_BINARY_DIR}/openssl/stage/"
+         STAMP_DIR    "${CMAKE_CURRENT_BINARY_DIR}/openssl/stamps/"
+         LOG_DIR      "${CMAKE_CURRENT_BINARY_DIR}/openssl/logs/"
+         GIT_REPOSITORY "https://github.com/openssl/openssl.git"
+         GIT_TAG "openssl-3.1.0"
+         GIT_PROGRESS ON
+         USES_TERMINAL_DOWNLOAD ON
+         LIST_SEPARATOR |
+         CONFIGURE_COMMAND 
+          ${CMAKE_CURRENT_BINARY_DIR}/openssl/source/config
+                --prefix ${ABSOLUTE_INSTALL_PREFIX}
+                ${TARGET}
+                --cross-compiler-prefix="${TOOL_PREFIX}"      
+         BUILD_COMMAND 
+          ${GNUMAKE_EXECUTABLE} all 
+         INSTALL_COMMAND
+          ${GNUMAKE_EXECUTABLE} install
+       )
+       message(STATUS 
+          "Pistache \n"
+          "\tExternalProject_Add( \n"
+          "\t\t  openssl \n"
+          "\t\t  INSTALL_DIR  \"${CMAKE_CURRENT_BINARY_DIR}/openssl\" \n"
+          "\t\t  BINARY_DIR   \"${CMAKE_CURRENT_BINARY_DIR}/openssl/build/\" \n"
+          "\t\t  SOURCE_DIR   \"${CMAKE_CURRENT_BINARY_DIR}/openssl/source/\" \n"
+          "\t\t  DOWNLOAD_DIR \"${CMAKE_CURRENT_BINARY_DIR}/openssl/stage/\" \n"
+          "\t\t  STAMP_DIR    \"${CMAKE_CURRENT_BINARY_DIR}/openssl/stamps/\" \n"
+          "\t\t  LOG_DIR      \"${CMAKE_CURRENT_BINARY_DIR}/openssl/logs/\" \n"
+          "\t\t  GIT_REPOSITORY \"https://github.com/openssl/openssl.git\" \n"
+          "\t\t  GIT_TAG \"openssl-2.1.0\" \n"
+          "\t\t  LIST_SEPARATOR | \n"
+          "\t\t  CONFIGURE_COMMAND  \n"
+          "\t\t   ${CMAKE_CURRENT_BINARY_DIR}/openssl/source/config \n"
+          "\t\t         --prefix ${ABSOLUTE_INSTALL_PREFIX} \n"
+          "\t\t         ${TARGET} \n"
+          "\t\t         --cross-compiler-prefix=\"${TOOL_PREFIX}\"       \n"
+          "\t\t  BUILD_COMMAND  \n"
+          "\t\t   ${GNUMAKE_EXECUTABLE} all  \n"
+          "\t\t  INSTALL_COMMAND \n"
+          "\t\t   ${GNUMAKE_EXECUTABLE} install \n"
+          "\t) \n"
+       )
+    else()
+      message(ERROR "GNUMake and Perl are required to build OpenSSL.")
+    endif()
   endif()
 endif()
 
@@ -442,9 +526,12 @@ if(TARGET PkgConfig::Pistache)
       LOG_DIR      "${CMAKE_CURRENT_BINARY_DIR}/pistache/logs/"
       GIT_REPOSITORY "https://github.com/pistacheio/pistache.git"
       GIT_TAG "master"
+      GIT_PROGRESS ON
+      GIT_SHALLOW  OFF
+      USES_TERMINAL_DOWNLOAD ON
       LIST_SEPARATOR |
       CONFIGURE_COMMAND 
-        meson setup 
+        ${MESON_EXECUTABLE} setup 
         --buildtype=release
         -DPISTACHE_USE_SSL=true
         -DPISTACHE_BUILD_EXAMPLES=false
@@ -457,9 +544,9 @@ if(TARGET PkgConfig::Pistache)
         ${CMAKE_CURRENT_BINARY_DIR}/pistache/build/
         ${CMAKE_CURRENT_BINARY_DIR}/pistache/source/
       BUILD_COMMAND 
-        meson compile -C ${CMAKE_CURRENT_BINARY_DIR}/pistache/build/
+        ${MESON_EXECUTABLE} compile -C ${CMAKE_CURRENT_BINARY_DIR}/pistache/build/
       INSTALL_COMMAND
-        meson install -C ${CMAKE_CURRENT_BINARY_DIR}/pistache/build/
+        ${MESON_EXECUTABLE} install -C ${CMAKE_CURRENT_BINARY_DIR}/pistache/build/
     )
 
     if(TARGET zlib) 

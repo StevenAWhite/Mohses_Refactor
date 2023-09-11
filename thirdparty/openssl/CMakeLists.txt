@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.18.0)
 
-set(GIT_REPOSITORY https://github.com/viaduck/openssl-cmake.git )
-set(GIT_TAG 3.0)
+set(GIT_REPOSITORY https://github.com/openssl/openssl.git )
+set(GIT_TAG openssl-3.1.0)
 set(PACKAGE_NAME openssl)
 set(PACKAGE_PREFIX OPENSSL)
 
