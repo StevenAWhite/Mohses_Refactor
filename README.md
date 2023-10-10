@@ -12,7 +12,7 @@ Mohses is an open-source multiplatform library, but modules that depend on pista
 |------|---------|--------|
 | CMake | >3.18  | [https://cmake.org/download/] |
 | Ninja (Optional) | N/A | [https://ninja-build.org/] |
-| Meson | N/A [https://mesonbuild.com/]|
+| Meson | N/A | [https://mesonbuild.com/]|
 
 ### Thirdparty Libraries
 
@@ -32,7 +32,7 @@ Mohses depends on several opensouce libraries which act as thirdparty dependenci
 | xsd | 4.0.1 | [https://www.codesynthesis.com/products/xsd/download.xhtml]| True |
 | eigen | 3.3.9.X | [https://gitlab.com/stevenawhite/eigen.git]| True |
 | biogears | master | [https://github.com/BioGearsEngine/core.git]| False |
-| pistache | master | [https://github.com/pistacheio/pistache.git]False |
+| pistache | master | [https://github.com/pistacheio/pistache.git] | False |
 
 ## Setting up a build environment
 
