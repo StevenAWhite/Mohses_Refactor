@@ -1,0 +1,18 @@
+[binaries]
+c = '@CMAKE_C_COMPILER@'
+cpp = '@CMAKE_CXX_COMPILER@'
+ar = '@CMAKE_CXX_COMPILER_AR@'
+strip = '@CMAKE_STRIP@'
+pkgconfig =  '@CMAKE_TOOLCHAIN_PREFIX@pkg-config'
+
+[host_machine]
+system = 'linux'
+cpu_family = '@CMAKE_HOST_SYSTEM_PROCESSOR@'
+cpu = '@CMAKE_HOST_SYSTEM_PROCESSOR@'
+endian = 'little'
+
+[target_machine]
+system = 'linux'
+cpu_family = '@CMAKE_SYSTEM_PROCESSOR@'
+cpu = '@CMAKE_SYSTEM_PROCESSOR@'
+endian = 'little'
