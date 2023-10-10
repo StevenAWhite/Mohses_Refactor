@@ -24,29 +24,9 @@ namespace AMM {
 /// Container for Module Manager logic.
     class ModuleManager : ListenerInterface {
 
-    public:
-
-
-    private:
-
-    protected:
-
-        /// This module's id.
-        AMM::UUID m_uuid;
-
-        /// This module's name.
-        std::string moduleName = "AMM_ModuleManager";
-
-        /// This module's path to the config file.
-        const std::string config_file = "config/module_manager_amm.xml";
-
-        /// DDS Manager for this module.
-        DDSManager <ModuleManager> *m_mgr = new DDSManager<ModuleManager>(config_file);
-
-        std::mutex m_mapmutex;
 
     public:
-        ModuleManager();
+        ModuleManager(std::string dds_config_path = "./");
 
         ~ModuleManager();
 
@@ -71,28 +51,6 @@ namespace AMM {
         std::string ExtractGUIDToString(GUID_t guid);
 
         uint64_t GetTimestamp();
-
-    private:
-        /// Enables
-        void RunSimulation();
-
-        void HaltSimulation();
-
-        void ResetSimulation();
-
-        void SaveSimulation();
-
-        const std::string loadScenarioPrefix = "LOAD_SCENARIO:";
-        const std::string loadStatePrefix = "LOAD_STATE:";
-        const std::string sysPrefix = "[SYS]";
-        const std::string actPrefix = "[ACT]";
-        const std::string loadPrefix = "LOAD_STATE:";
-
-        std::string currentScenario = "NONE";
-        std::string currentState = "NONE";
-        std::string currentStatus = "NOT RUNNING";
-
-        bool isPaused = false;
 
     protected:
 
@@ -138,6 +96,48 @@ namespace AMM {
         void ParseCapabilities(tinyxml2::XMLElement *node);
 
         void ParseMetadata(tinyxml2::XMLElement *node);
+
+    protected:
+
+        /// This module's id.
+        AMM::UUID m_uuid;
+
+        /// This module's name.
+        std::string moduleName = "AMM_ModuleManager";
+
+        std::string m_DDS_Configuration = "";
+        std::string m_DDS_Capabilities  = "";
+        /// DDS Manager for this module.
+        DDSManager <ModuleManager> *m_mgr = nullptr;
+
+        std::mutex m_mapmutex;
+
+    private:
+        /// Enables
+        void RunSimulation();
+
+        void HaltSimulation();
+
+        void ResetSimulation();
+
+        void SaveSimulation();
+
+        const std::string loadScenarioPrefix = "LOAD_SCENARIO:";
+        const std::string loadStatePrefix = "LOAD_STATE:";
+        const std::string sysPrefix = "[SYS]";
+        const std::string actPrefix = "[ACT]";
+        const std::string loadPrefix = "LOAD_STATE:";
+
+        std::string currentScenario = "NONE";
+        std::string currentState = "NONE";
+        std::string currentStatus = "NOT RUNNING";
+
+        std::string resourcePath = "";
+        std::string configPath = "";
+        std::string logPath = "";
+
+        bool isPaused = false;
+
     };
 
 

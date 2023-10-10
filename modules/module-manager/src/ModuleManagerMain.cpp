@@ -7,13 +7,23 @@
 using namespace std;
 using namespace sqlite;
 
+enum class ExecutionErrors{
+  NONE = 0,
+  FILESYSTEM,
+  ARGUMENTS,
+  UNKNOWN,
+};
 
-bool closed = false;
-int daemonize = 0;
-bool setup = false;
-int autostart = 0;
-bool wipe = false;
+struct Configuration {
+    bool closed = false;
+    bool daemonize = false;
+    bool autostart = false;
+    bool setup = false;
+    bool wipe = false;
 
+    std::string runtime_directory= "";
+    std::string dds_directory = "./";
+} config;
 /// Clears database tables.
 void WipeTables() {
     try {
@@ -128,7 +138,7 @@ void ShowMenu(AMM::ModuleManager *modManager) {
         WipeTables();
     } else if (action == "4") {
         LOG_INFO << "Shutting down Module Manager.";
-        closed = true;
+        config.closed = true;
         modManager->Shutdown();
     } else if (action == "5") {
         LOG_INFO << "Loading scenario file via COMMAND";
@@ -144,56 +154,111 @@ void ShowMenu(AMM::ModuleManager *modManager) {
 }
 
 /// Main program
+#include <filesystem>
+#include <boost/program_options.hpp>
+
+std::string basename_(const std::string& p)
+{
+  return std::filesystem::path(p).filename();
+}
+
 int main(int argc, char *argv[]) {
+    using namespace boost::program_options;
+
+    std::string help_message;
+    try {
+      // Declare the supported options.
+      options_description desc("Allowed options");
+      desc.add_options() 
+        ("help,h", "produce help message")
+        ("daemon,d", bool_switch()->default_value(false), "Run in daemon mode for service design." )
+        ("autostart,a", bool_switch()->default_value(false), "Starts module-manager immeditally." )
+        ("setup,s", bool_switch()->default_value(false), "setup")
+        ("wipe,w", bool_switch()->default_value(false), "wipe")
+        ("version,v", bool_switch()->default_value(false), "version")
+        ("configs", value<std::string>(), "Path to required resource files"),
+        ("directory","-C", value<std::string>(), "Path to required resource files");
+
+        options_description all_options;
+        all_options.add(desc);
+        variables_map vm;
+        store(command_line_parser(argc, argv).options(all_options).run(), vm);
+        notify(vm);
+
+        if (vm.count("help") || argc < 2) {
+          std::cout << desc << std::endl;
+          return static_cast<int>(ExecutionErrors::NONE);
+        }
+
+        if (vm["version"].as<bool>()) {
+          //TODO: PROVIDE THIS AS A #DEFINE FROM CMAKE
+          std::cout << "v1.2.0" << std::endl;
+          return static_cast<int>(ExecutionErrors::NONE);
+        }
+
+        if (vm["daemon"].as<bool>()) {
+            config.daemonize = 1;
+        }
+
+        if (vm["autostart"].as<bool>()) {
+            config.autostart = 1;
+        }
+
+        if (vm["setup"].as<bool>()) {
+            config.setup = 1;
+        }
+
+        if (vm["wipe"].as<bool>()) {
+            config.wipe = 1;
+        }
+
+        if (vm.count("configs")) {
+            config.dds_directory= vm["configs"].as<std::string>();
+        }
+        if (vm.count("directory")) {
+            config.runtime_directory = vm["directory"].as<std::string>();
+            try {
+              std::filesystem::current_path(config.runtime_directory);
+            } catch ( std::filesystem::filesystem_error ) {
+                 std::cerr << "Unable to change directory to " << config.runtime_directory                           << "given by option -C ";
+                 exit(static_cast<int>(ExecutionErrors::FILESYSTEM));
+            }
+        }
+
+    } catch (boost::program_options::required_option /*e*/) {
+      std::cout << argv[0]  << ": " << help_message << std::endl;
+      return (static_cast<int>(ExecutionErrors::ARGUMENTS));
+    } catch (std::exception& e) {
+      std::cerr << argv[0]  << ": " << e.what() << std::endl;
+      return (static_cast<int>(ExecutionErrors::UNKNOWN));
+    }
+
+    
+
     static plog::ColorConsoleAppender <plog::TxtFormatter> consoleAppender;
     plog::init(plog::verbose, &consoleAppender);
 
     LOG_INFO << "AMM - Module Manager";
 
-    for (int i = 1; i < argc; ++i) {
-        string arg = argv[i];
-
-        if ((arg == "-h") || (arg == "--help")) {
-            ShowUsage(argv[0]);
-            return 0;
-        }
-
-        if (arg == "-d") {
-            daemonize = 1;
-        }
-
-        if (arg == "-a") {
-            autostart = 1;
-        }
-
-        if (arg == "-s") {
-            setup = true;
-        }
-
-        if (arg == "-w") {
-            wipe = true;
-        }
-    }
-
-    if (setup) {
+    if (config.setup) {
         LOG_INFO << "Creating AMM database schema.";
         SetupTables();
     }
 
-    if (wipe) {
+    if (config.wipe) {
         LOG_INFO << "Wiping tables on startup";
         WipeTables();
     }
 
-    AMM::ModuleManager modManager;
+    AMM::ModuleManager modManager(config.dds_directory);
 
     std::this_thread::sleep_for(std::chrono::milliseconds(250));
 
     modManager.PublishOperationalDescription();
     modManager.PublishConfiguration();
 
-    while (!closed) {
-        if (autostart != 1) {
+    while (!config.closed) {
+        if (!config.autostart) {
             ShowMenu(&modManager);
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(250));

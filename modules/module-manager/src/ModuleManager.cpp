@@ -1,11 +1,27 @@
 #include "ModuleManager.h"
 
+#include <filesystem> 
+
 using namespace std;
 using namespace std::chrono;
 using namespace sqlite;
 
+        
+/// This module's path to the config file.
+constexpr char const * module_manager_amm = "/module_manager_amm.xml";
+constexpr char const * module_manager_configuration = "/module_manager_configuration.xml";
+constexpr char const * module_manager_capabilities = "/module_manager_capabilities.xml"; 
+
 namespace AMM {
-    ModuleManager::ModuleManager() {
+    ModuleManager::ModuleManager(std::string dds_config_path) {
+         std::string resource_path = dds_config_path;
+         if ( !std::filesystem::exists( resource_path + module_manager_amm )){
+           resource_path += "/config";
+         }
+         m_mgr = new DDSManager<ModuleManager>( resource_path + module_manager_amm );
+         m_DDS_Configuration = Utility::read_file_to_string( resource_path + module_manager_configuration );
+         m_DDS_Capabilities  = Utility::read_file_to_string( resource_path + module_manager_capabilities );
+        
 
         // Initialize everything we'll need to listen for
         m_mgr->InitializeSimulationControl();
@@ -58,8 +74,7 @@ namespace AMM {
         od.serial_number("1.0.0");
         od.module_id(m_uuid);
         od.module_version("1.0.0");
-        const std::string capabilities = Utility::read_file_to_string("config/module_manager_capabilities.xml");
-        od.capabilities_schema(capabilities);
+        od.capabilities_schema(m_DDS_Capabilities);
         od.description();
         m_mgr->WriteOperationalDescription(od);
     }
@@ -70,8 +85,8 @@ namespace AMM {
         mc.timestamp(ms);
         mc.module_id(m_uuid);
         mc.name(moduleName);
-        const std::string configuration = Utility::read_file_to_string("config/module_manager_configuration.xml");
-        mc.capabilities_configuration(configuration);
+        
+        mc.capabilities_configuration(m_DDS_Configuration);
         m_mgr->WriteModuleConfiguration(mc);
     }
 
