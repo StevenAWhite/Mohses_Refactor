@@ -6583,23 +6583,23 @@ namespace AMM {
        /// Output from each decommission.
        std::string localerrmsg;
 
-       if (DecommissionAssessment(localerrmsg) != 0) errmsg + localerrmsg + "\n";
-       if (DecommissionEventFragment(localerrmsg) != 0) errmsg + localerrmsg + "\n";
-       if (DecommissionEventRecord(localerrmsg) != 0) errmsg + localerrmsg + "\n";
-       if (DecommissionFragmentAmendmentRequest(localerrmsg) != 0) errmsg + localerrmsg + "\n";
-       if (DecommissionLog(localerrmsg) != 0) errmsg + localerrmsg + "\n";
-       if (DecommissionModuleConfiguration(localerrmsg) != 0) errmsg + localerrmsg + "\n";
-       if (DecommissionOmittedEvent(localerrmsg) != 0) errmsg + localerrmsg + "\n";
-       if (DecommissionOperationalDescription(localerrmsg) != 0) errmsg + localerrmsg + "\n";
-       if (DecommissionPhysiologyModification(localerrmsg) != 0) errmsg + localerrmsg + "\n";
-       if (DecommissionPhysiologyValue(localerrmsg) != 0) errmsg + localerrmsg + "\n";
-       if (DecommissionPhysiologyWaveform(localerrmsg) != 0) errmsg + localerrmsg + "\n";
-       if (DecommissionRenderModification(localerrmsg) != 0) errmsg + localerrmsg + "\n";
-       if (DecommissionSimulationControl(localerrmsg) != 0) errmsg + localerrmsg + "\n";
-       if (DecommissionStatus(localerrmsg) != 0) errmsg + localerrmsg + "\n";
-       if (DecommissionTick(localerrmsg) != 0) errmsg + localerrmsg + "\n";
-       if (DecommissionInstrumentData(localerrmsg) != 0) errmsg + localerrmsg + "\n";
-       if (DecommissionCommand(localerrmsg) != 0) errmsg + localerrmsg + "\n";
+       if (DecommissionAssessment(localerrmsg) != 0) errmsg += localerrmsg + "\n";
+       if (DecommissionEventFragment(localerrmsg) != 0) errmsg += localerrmsg + "\n";
+       if (DecommissionEventRecord(localerrmsg) != 0) errmsg += localerrmsg + "\n";
+       if (DecommissionFragmentAmendmentRequest(localerrmsg) != 0) errmsg += localerrmsg + "\n";
+       if (DecommissionLog(localerrmsg) != 0) errmsg += localerrmsg + "\n";
+       if (DecommissionModuleConfiguration(localerrmsg) != 0) errmsg += localerrmsg + "\n";
+       if (DecommissionOmittedEvent(localerrmsg) != 0) errmsg += localerrmsg + "\n";
+       if (DecommissionOperationalDescription(localerrmsg) != 0) errmsg += localerrmsg + "\n";
+       if (DecommissionPhysiologyModification(localerrmsg) != 0) errmsg += localerrmsg + "\n";
+       if (DecommissionPhysiologyValue(localerrmsg) != 0) errmsg += localerrmsg + "\n";
+       if (DecommissionPhysiologyWaveform(localerrmsg) != 0) errmsg += localerrmsg + "\n";
+       if (DecommissionRenderModification(localerrmsg) != 0) errmsg += localerrmsg + "\n";
+       if (DecommissionSimulationControl(localerrmsg) != 0) errmsg += localerrmsg + "\n";
+       if (DecommissionStatus(localerrmsg) != 0) errmsg += localerrmsg + "\n";
+       if (DecommissionTick(localerrmsg) != 0) errmsg += localerrmsg + "\n";
+       if (DecommissionInstrumentData(localerrmsg) != 0) errmsg += localerrmsg + "\n";
+       if (DecommissionCommand(localerrmsg) != 0) errmsg += localerrmsg + "\n";
 
        eprosima::fastrtps::Domain::stopAll();
     }

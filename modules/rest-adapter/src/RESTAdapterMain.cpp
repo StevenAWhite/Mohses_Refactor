@@ -18,16 +18,18 @@
 #include "rapidjson/document.h"
 #include "rapidjson/writer.h"
 
-#include "boost/filesystem.hpp"
+#include <filesystem>
 #include <boost/algorithm/string/join.hpp>
 #include <boost/process.hpp>
+#include <boost/program_options.hpp>
+
 
 #include "thirdparty/sqlite_modern_cpp.h"
 
 using namespace AMM;
 using namespace std;
 using namespace std::chrono;
-using namespace boost::filesystem;
+using namespace std::filesystem;
 using namespace rapidjson;
 using namespace Pistache;
 using namespace eprosima;
@@ -811,8 +813,8 @@ private:
         if (exists(state_path) && is_directory(state_path)) {
             path p(state_path);
             if (is_directory(p)) {
-                std::vector<boost::filesystem::path> paths(
-                        boost::filesystem::directory_iterator{state_path}, boost::filesystem::directory_iterator{}
+                std::vector<std::filesystem::path> paths(
+                        std::filesystem::directory_iterator{state_path}, std::filesystem::directory_iterator{}
                 );
                 std::sort(paths.begin(), paths.end());
                 for (auto const &path : paths) {
@@ -843,7 +845,7 @@ private:
             path deletePath(deleteFile.str().c_str());
             if (exists(deletePath) && is_regular_file(deletePath)) {
                 LOG_INFO << "Deleting " << deletePath;
-                boost::filesystem::remove(deletePath);
+                std::filesystem::remove(deletePath);
                 response.send(Pistache::Http::Code::Ok, "Deleted",
                               MIME(Application, Json));
             } else {

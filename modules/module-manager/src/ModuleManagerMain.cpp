@@ -1,5 +1,8 @@
 #include "ModuleManager.h"
 
+#include <filesystem>
+#include <boost/program_options.hpp>
+
 #include "thirdparty/sqlite_modern_cpp.h"
 
 #include <mohses/BaseLogger.h>
@@ -151,15 +154,6 @@ void ShowMenu(AMM::ModuleManager *modManager) {
             /// TODO: Unknown menu action.
 
     }
-}
-
-/// Main program
-#include <filesystem>
-#include <boost/program_options.hpp>
-
-std::string basename_(const std::string& p)
-{
-  return std::filesystem::path(p).filename();
 }
 
 int main(int argc, char *argv[]) {

@@ -55,8 +55,8 @@ if (MOHSES_BUILD_REST_ADAPTER AND NOT WIN32)
             rapidjson::headers
             pistache::lib
             Boost::headers
+            Boost::program_options
             Boost::uuid
-            Boost::filesystem
             Boost::process
             )
     set(CMAKE_CXX_STANDARD 20) 

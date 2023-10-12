@@ -15,9 +15,11 @@
 #include <boost/archive/iterators/binary_from_base64.hpp>
 #include <boost/archive/iterators/transform_width.hpp>
 
+#include <mohses/exports.h>
+
 namespace AMM {
 
-   class Utility {
+   class eProsima_user_DllExport Utility {
 
    public:
       /**

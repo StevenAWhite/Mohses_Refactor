@@ -66,6 +66,7 @@ if (MOHSES_BUILD_TCP_BRIDGE)
             Boost::system
             Boost::thread
             Boost::program_options
+            Boost::filesystem
             Boost::process
             Boost::uuid
             Boost::assign
@@ -77,7 +78,7 @@ if (MOHSES_BUILD_TCP_BRIDGE)
     set_target_properties(mohses_tcp_bridge PROPERTIES 
                  FOLDER ${CMAKE_FOLDER}/modules 
                  INSTALL_RPATH "\${ORIGIN}:\${ORIGIN}/../lib:\${ORIGIN}/lib"
-                 CXX_STANDARD 20
+                 CXX_STANDARD 17
     ) 
 
     set(MODULE_TARGET_NAME mohses_tcp_bridge ) 
@@ -88,6 +89,8 @@ if (MOHSES_BUILD_TCP_BRIDGE)
                      ${CMAKE_CURRENT_BINARY_DIR}/${MODULE_TARGET_NAME}.conf @ONLY)
       install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${MODULE_TARGET_NAME}.conf 
               DESTINATION  ${MOHSES_CONFIG_DIR})
+    else()
+       target_compile_definitions(${MODULE_TARGET_NAME} PRIVATE BOOST_UUID_FORCE_AUTO_LINK )
     endif()
     install(DIRECTORY config
                 DESTINATION  ${MOHSES_RUNTIME_DIR})

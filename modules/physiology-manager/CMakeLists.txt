@@ -51,7 +51,7 @@ if (MOHSES_BUILD_physiology_manager)
                 SQLite::SQLite3
                 tinyxml2::tinyxml2
                 Boost::headers
-                Boost::filesystem
+                Boost::program_options
                 Boost::assign
                 Boost::uuid
                 )
@@ -69,6 +69,8 @@ if (MOHSES_BUILD_physiology_manager)
                          ${CMAKE_CURRENT_BINARY_DIR}/${MODULE_TARGET_NAME}.conf @ONLY)
           install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${MODULE_TARGET_NAME}.conf 
                    DESTINATION ${MOHSES_CONFIG_DIR})
+        else()
+           target_compile_definitions(${MODULE_TARGET_NAME} PRIVATE BOOST_UUID_FORCE_AUTO_LINK )
         endif()
         install(DIRECTORY config
                 DESTINATION  ${MOHSES_RUNTIME_DIR})

@@ -1,6 +1,8 @@
 #include "ServerThread.h"
 
-#ifdef WIN32   
+#ifdef WIN32
+#define NOMINMAX
+#define WIN32_LEAN_AND_MEAN
 #include <winsock2.h>
 #endif
 using namespace std;

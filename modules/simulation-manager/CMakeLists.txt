@@ -48,6 +48,7 @@ if (MOHSES_BUILD_SIMULATION_MANAGER)
                 SQLite::SQLite3
                 tinyxml2::tinyxml2
                 Boost::headers
+                Boost::program_options
                 Boost::uuid
                 )
         set_target_properties(mohses_simulation_manager PROPERTIES 
@@ -63,8 +64,10 @@ if (MOHSES_BUILD_SIMULATION_MANAGER)
                          ${CMAKE_CURRENT_BINARY_DIR}/${MODULE_TARGET_NAME}.conf @ONLY)
           install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${MODULE_TARGET_NAME}.conf 
                   DESTINATION  ${MOHSES_CONFIG_DIR})
+          install(DIRECTORY config
+                          DESTINATION  ${MOHSES_RUNTIME_DIR})
+        else()
+           target_compile_definitions(${MODULE_TARGET_NAME} PRIVATE BOOST_UUID_FORCE_AUTO_LINK )
         endif()
-        install(DIRECTORY config
-                DESTINATION  ${MOHSES_RUNTIME_DIR})
 
 endif(MOHSES_BUILD_SIMULATION_MANAGER)

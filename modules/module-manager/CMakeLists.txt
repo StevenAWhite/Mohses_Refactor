@@ -44,7 +44,9 @@ if (MOHSES_BUILD_MODULE_MANAGER)
                 mohses::net
                 SQLite::SQLite3
                 tinyxml2::tinyxml2
-                Boost::headers
+                Boost::headers                        
+                $<TARGET_NAME_IF_EXISTS:Boost::dynamic_linking>
+                $<TARGET_NAME_IF_EXISTS:Boost::disable_autolinking>
                 Boost::program_options
                 Boost::uuid
                 )
@@ -61,6 +63,8 @@ if (MOHSES_BUILD_MODULE_MANAGER)
                          ${CMAKE_CURRENT_BINARY_DIR}/${MODULE_TARGET_NAME}.conf @ONLY)
           install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${MODULE_TARGET_NAME}.conf 
                   DESTINATION  ${MOHSES_CONFIG_DIR})
+        else()
+           target_compile_definitions(${MODULE_TARGET_NAME} PRIVATE BOOST_UUID_FORCE_AUTO_LINK )
         endif()
         install(DIRECTORY config
                 DESTINATION  ${MOHSES_RUNTIME_DIR})

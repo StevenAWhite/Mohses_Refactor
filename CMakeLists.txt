@@ -54,11 +54,59 @@ set(CMAKE_MACOSX_RPATH 1)
 option(MOHSES_FETCH_THIRDPARTY "This option will try to fetch third party dependencies for building" OFF)
 
 if (MOHSES_FETCH_THIRDPARTY)
+
+   project("MoHSES Thirdparty")
    message(STATUS "MOHSES_FETCH_THIRDPARTY=ON")
    add_subdirectory(thirdparty)
 else()
    message(STATUS "MOHSES_FETCH_THIRDPARTY=OFF")
-   find_package(Boost REQUIRED COMPONENTS filesystem program_options serialization system thread)
+   find_package(Boost REQUIRED COMPONENTS atomic chrono date_time exception container filesystem program_options serialization system thread)
+
+  set_target_properties(Boost::filesystem PROPERTIES
+     MAP_IMPORTED_CONFIG_MINSIZEREL Release
+     MAP_IMPORTED_CONFIG_RELWITHDEBINFO Release
+  )
+
+  set_target_properties(Boost::program_options PROPERTIES
+     MAP_IMPORTED_CONFIG_MINSIZEREL Release
+     MAP_IMPORTED_CONFIG_RELWITHDEBINFO Release
+  )
+
+  set_target_properties(Boost::serialization PROPERTIES
+     MAP_IMPORTED_CONFIG_MINSIZEREL Release
+     MAP_IMPORTED_CONFIG_RELWITHDEBINFO Release
+  )
+
+  set_target_properties(Boost::system PROPERTIES
+     MAP_IMPORTED_CONFIG_MINSIZEREL Release
+     MAP_IMPORTED_CONFIG_RELWITHDEBINFO Release
+  )
+
+  set_target_properties(Boost::thread PROPERTIES
+     MAP_IMPORTED_CONFIG_MINSIZEREL Release
+     MAP_IMPORTED_CONFIG_RELWITHDEBINFO Release
+  )
+
+  set_target_properties(Boost::atomic PROPERTIES
+     MAP_IMPORTED_CONFIG_MINSIZEREL Release
+     MAP_IMPORTED_CONFIG_RELWITHDEBINFO Release
+  )
+
+  set_target_properties(Boost::date_time PROPERTIES
+     MAP_IMPORTED_CONFIG_MINSIZEREL Release
+     MAP_IMPORTED_CONFIG_RELWITHDEBINFO Release
+  )
+
+  set_target_properties(Boost::exception PROPERTIES
+     MAP_IMPORTED_CONFIG_MINSIZEREL Release
+     MAP_IMPORTED_CONFIG_RELWITHDEBINFO Release
+  )
+  
+  set_target_properties(Boost::container PROPERTIES
+     MAP_IMPORTED_CONFIG_MINSIZEREL Release
+     MAP_IMPORTED_CONFIG_RELWITHDEBINFO Release
+  )
+
    if (NOT TARGET Boost::asio)
      message(STATUS "EXPORTING Boost::asio") 
      add_library(Boost::asio ALIAS Boost::headers)

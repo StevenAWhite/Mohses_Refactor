@@ -8,6 +8,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <thread>
+#include <filesystem>
 
 #include <mohses/net.h>
 
@@ -18,7 +19,7 @@
 #include <boost/assign/list_of.hpp>
 #include <boost/assign/std/vector.hpp>
 #include <boost/exception/all.hpp>
-#include <boost/filesystem.hpp>
+
 
 // BioGears core
 #include <biogears/cdm/CommonDataModel.h>

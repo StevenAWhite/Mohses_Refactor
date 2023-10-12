@@ -18,7 +18,7 @@ namespace AMM {
    }
 
    void Utility::add_once(std::vector<std::string> &vec, const std::string &element) {
-      std::remove(vec.begin(), vec.end(), element);
+      static_cast<void>(std::remove(vec.begin(), vec.end(), element));
       vec.push_back(element);
    }
 

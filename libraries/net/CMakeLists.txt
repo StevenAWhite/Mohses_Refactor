@@ -39,6 +39,16 @@ find_package(fastcdr REQUIRED)
 find_package(fastrtps REQUIRED)
 find_package(TinyXML2 REQUIRED)
 
+
+set_target_properties(Boost::algorithm PROPERTIES
+  MAP_IMPORTED_CONFIG_MINSIZEREL Release
+  MAP_IMPORTED_CONFIG_RELWITHDEBINFO Release
+  )
+set_target_properties(Boost::serialization PROPERTIES
+  MAP_IMPORTED_CONFIG_MINSIZEREL Release
+  MAP_IMPORTED_CONFIG_RELWITHDEBINFO Release
+  )
+
 if (COMMAND FastRTPS_IDLGEN)
     add_custom_target(generate_from_idl_standard 
              COMMAND ${FASTRTP_GEN_EXECUTABLE} 
@@ -60,6 +70,7 @@ set(MOHSES_NET_H   ${MOHSES_NET_IDL_HEADERS} ${MOHSES_NET_HEADERS} ${PLOG_HEADER
 
 add_library("net" SHARED ${MOHSES_NET_CPP} ${MOHSES_NET_H})
 set_target_properties(net PROPERTIES
+          DEFINE_SYMBOL EPROSIMA_USER_DLL_EXPORT
           FOLDER "${CMAKE_FOLDER}/libraries"
           INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "" #include/plog" "src/idl"
           INSTALL_RPATH "\${ORIGIN}:\${ORIGIN}/../lib:\${ORIGIN}/lib"

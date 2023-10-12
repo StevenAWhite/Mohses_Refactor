@@ -13,6 +13,8 @@
 
 #include "tinyxml2.h"
 
+#include <filesystem>
+#include <boost/program_options.hpp>
 #include <cstdio>
 #include <cstddef>
 #include <sys/types.h>

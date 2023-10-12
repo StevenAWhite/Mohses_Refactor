@@ -256,8 +256,33 @@ if (NOT XSD_CMAKE_GENERATOR )
     set(XSD_CMAKE_GENERATOR ${CMAKE_GENERATOR})
 endif()
 
-find_package(OpenSSL QUIET )
-if(NOT OpenSSL_FOUND)
+option(MOHSES_FORCE_THIRDPARTY_BUILD "Build every THIRDPARTY package weather it is found or not" OFF )
+if (MOHSES_FORCE_THIRDPARTY_BUILD)
+
+   option(MOHSES_FORCE_OPENSSL_BUILD "Force build openssl when MOHSES_FORCE_THIRDPARTY_BUILD is TRUE" ON )
+   option(MOHSES_FORCE_BOOST_BUILD "Force build boost when MOHSES_FORCE_THIRDPARTY_BUILD is TRUE" ON )
+   option(MOHSES_FORCE_TINYXML2_BUILD "Force build tinyxml when MOHSES_FORCE_THIRDPARTY_BUILD is TRUE" ON )
+   option(MOHSES_FORCE_FOONATHAN_BUILD "Force build foonathan_memory when MOHSES_FORCE_THIRDPARTY_BUILD is TRUE" ON )
+   option(MOHSES_FORCE_SQLITE3_BUILD "Force build sqlite3 when MOHSES_FORCE_THIRDPARTY_BUILD is TRUE" ON )
+   option(MOHSES_FORCE_FASTCDR_BUILD "Force build fastcdr when MOHSES_FORCE_THIRDPARTY_BUILD is TRUE" ON )
+   option(MOHSES_FORCE_FASTRTPS_BUILD "Force build fastrtps when MOHSES_FORCE_THIRDPARTY_BUILD is TRUE" ON )
+   option(MOHSES_FORCE_RAPIDJSON_BUILD "Force build rapid_json when MOHSES_FORCE_THIRDPARTY_BUILD is TRUE" ON )
+   option(MOHSES_FORCE_XERCESC_BUILD "Force build xercesc when MOHSES_FORCE_THIRDPARTY_BUILD is TRUE" ON )
+   option(MOHSES_FORCE_XSD_BUILD "Force build xsd when MOHSES_FORCE_THIRDPARTY_BUILD is TRUE" ON )
+   option(MOHSES_FORCE_EIGEN3_BUILD "Force build eigen3 when MOHSES_FORCE_THIRDPARTY_BUILD is TRUE" ON )
+   option(MOHSES_FORCE_BIOGEARS_BUILD "Force build biogears when MOHSES_FORCE_THIRDPARTY_BUILD is TRUE" ON )
+   option(MOHSES_FORCE_ZLIB_BUILD "Force build zlib when MOHSES_FORCE_THIRDPARTY_BUILD is TRUE" ON )
+
+   if(NOT MSVC)
+      option(MOHSES_FORCE_PISTACE_BUILD "Force build pistache when MOHSES_FORCE_THIRDPARTY_BUILD is TRUE" ON )
+   endif()
+endif()
+
+if(NOT (MOHSES_FORCE_THIRDPARTY_BUILD AND MOHSES_FORCE_OPENSSL_BUILD))
+   find_package(OpenSSL QUIET )
+endif()
+
+if(NOT OpenSSL_FOUND )
   if(MSVC)
      message(STATUS "OpenSSL binaries are required for this build. Downloads are avaliable for Windows at Shining Light Productions.\n"
                     "https://slproweb.com/products/Win32OpenSSL.html . The full development installation of OpenSSL v3.1.1 140MBs.\n"
@@ -334,16 +359,22 @@ if(NOT OpenSSL_FOUND)
   endif()
 endif()
 
-find_package(Boost QUIET )
-if(NOT Boost_FOUND)
+if(NOT MOHSES_FORCE_THIRDPARTY_BUILD AND MOHSES_FORCE_BOOST_BUILD)
+   find_package(Boost QUIET )
+endif()
+
+if(NOT Boost_FOUND )
   Thirdparty_Build(boost
     GIT_REPOSITORY https://github.com/boostorg/boost.git
     GIT_TAG boost-1.82.0
+     CMAKE_ARGS -DBUILD_SHARED_LIBS:BOOL=ON
   )
 endif()
 
-find_package(TinyXML2 QUIET )
-if(NOT TinyXML2_FOUND)
+if(NOT (MOHSES_FORCE_THIRDPARTY_BUILD AND MOHSES_FORCE_BOOST_BUILD))
+   find_package(TinyXML2 QUIET )
+endif()
+if(NOT TinyXML2_FOUND )
   Thirdparty_Build(tinyxml2
     GIT_REPOSITORY https://github.com/leethomason/tinyxml2.git
     GIT_TAG 8.1.0
@@ -353,8 +384,11 @@ if(NOT TinyXML2_FOUND)
   )
 endif()
 
-find_package(foonathan_memory QUIET )
-if(NOT foonathan_memory_FOUND)
+if(NOT (MOHSES_FORCE_THIRDPARTY_BUILD AND MOHSES_FORCE_FOONATHAN_BUILD))
+   find_package(foonathan_memory QUIET )
+endif()
+
+if(NOT foonathan_memory_FOUNDOR )
   Thirdparty_Build(foonathan_memory
     GIT_REPOSITORY  https://github.com/foonathan/memory.git
     GIT_TAG v0.7-3
@@ -364,7 +398,9 @@ if(NOT foonathan_memory_FOUND)
   )
 endif()
 
-find_package(SQLite3 QUIET )
+if(NOT (MOHSES_FORCE_THIRDPARTY_BUILD AND MOHSES_FORCE_SQLITE3_BUILD))
+   find_package(SQLite3 QUIET )
+endif()
 if(NOT SQLite3_FOUND)
   Thirdparty_Build(SQLite3
     GIT_REPOSITORY  https://github.com/azadkuh/sqlite-amalgamation.git
@@ -372,15 +408,19 @@ if(NOT SQLite3_FOUND)
   )
 endif()
 
-find_package(fastcdr CONFIG )
-if(NOT fastcdr_FOUND)
+if(NOT (MOHSES_FORCE_THIRDPARTY_BUILD AND MOHSES_FORCE_FASTCDR_BUILD))
+   find_package(fastcdr CONFIG )
+endif()
+if(NOT fastcdr_FOUND )
   Thirdparty_Build(fastcdr
     GIT_REPOSITORY  https://github.com/eProsima/Fast-CDR.git
     GIT_TAG v1.0.27
   )
 endif()
 
-find_package(fastrtps QUIET )
+if(NOT (MOHSES_FORCE_THIRDPARTY_BUILD AND MOHSES_FORCE_FASTRTPS_BUILD))
+   find_package(fastrtps QUIET )
+endif()
 if(NOT fastrtps_FOUND )
   Thirdparty_Build(fastddr
     GIT_REPOSITORY  https://github.com/eProsima/Fast-DDS.git
@@ -406,8 +446,10 @@ if(NOT fastrtps_FOUND )
 
 endif()
 
-find_package(RapidJSON QUIET )
-if(NOT RapidJSON_FOUND)
+if(NOT (MOHSES_FORCE_THIRDPARTY_BUILD AND MOHSES_FORCE_RAPIDJSON_BUILD))
+   find_package(RapidJSON QUIET )
+endif()
+if(NOT RapidJSON_FOUND )
   Thirdparty_Build(rapidjson
     GIT_REPOSITORY  https://github.com/Tencent/rapidjson.git
     GIT_TAG v1.1.0
@@ -417,8 +459,10 @@ if(NOT RapidJSON_FOUND)
   )
 endif()
 
-find_package(foonathan_memory QUIET )
-if(NOT foonathan_memory_FOUND)
+if(NOT (MOHSES_FORCE_THIRDPARTY_BUILD AND MOHSES_FORCE_XERCESC_BUILD))
+   find_package(xerces-c QUIET )
+endif()
+if(NOT xerces-c_FOUND )
   Thirdparty_Build(xerces-c
     GIT_REPOSITORY https://github.com/apache/xerces-c.git
     GIT_TAG xerces-3.2.2
@@ -465,8 +509,10 @@ if(ANDROID)
   endif()
 endif()
 
+if(NOT (MOHSES_FORCE_THIRDPARTY_BUILD AND MOHSES_FORCE_EIGEN3_BUILD))
 find_package(Eigen3 QUIET )
-if(NOT Eigen3_FOUND)
+endif()
+if(NOT Eigen3_FOUND )
   Thirdparty_Build(eigen
     GIT_REPOSITORY https://gitlab.com/stevenawhite/eigen.git
     GIT_TAG 3.3.9.X
@@ -477,8 +523,10 @@ if(NOT Eigen3_FOUND)
   )
 endif()
 
-find_package(Biogears QUIET )
-if(NOT Biogears_FOUND)
+if(NOT (MOHSES_FORCE_THIRDPARTY_BUILD AND MOHSES_FORCE_BIOGEARS_BUILD))
+   find_package(Biogears QUIET)
+endif()
+if(NOT Biogears_FOUND )
   Thirdparty_Build(biogears
     GIT_REPOSITORY https://github.com/BioGearsEngine/core.git
     GIT_TAG  trunk
@@ -510,8 +558,10 @@ if(NOT Biogears_FOUND)
 
 endif()
 
-find_package(ZLIB QUIET )
-if(NOT ZLIB_FOUND)
+if(NOT (MOHSES_FORCE_THIRDPARTY_BUILD AND MOHSES_FORCE_ZLIB_BUILD))
+   find_package(ZLIB QUIET )
+endif()
+if(NOT ZLIB_FOUND )
   Thirdparty_Build(zlib
     GIT_REPOSITORY https://github.com/madler/zlib.git
     GIT_TAG master
@@ -523,53 +573,55 @@ endif()
 # Pistache -- 
 # https://github.com/pistacheio/pistache.git
 #####
-find_package(PkgConfig)
-if (PkgConfig_FOUND)
-   if( NOT CMAKE_FIND_ROOT_PATH )
-      set(PKG_CONFIG_USE_CMAKE_PREFIX_PATH ON)
-   endif()
+if(NOT (MOHSES_FORCE_THIRDPARTY_BUILD AND MOHSES_FORCE_PISTACHE_BUILD))
+   find_package(PkgConfig)
+   if (PkgConfig_FOUND)
+      if( NOT CMAKE_FIND_ROOT_PATH )
+         set(PKG_CONFIG_USE_CMAKE_PREFIX_PATH ON)
+      endif()
 
-   if ((CMAKE_FIND_ROOT_PATH_MODE_LIBRARY STREQUAL ONLY 
-        OR CMAKE_FIND_ROOT_PATH_MODE_LIBRARY STREQUAL BOTH) 
-        AND CMAKE_FIND_ROOT_PATH)
-      message(STATUS "Generating pkgconfig path from CMAKE_FIND_ROOT_PATH")
-      foreach( dir IN LISTS CMAKE_FIND_ROOT_PATH)
-       if(EXISTS "${dir}/lib/pkgconfig")
-         STRING(APPEND PKG_CONFIG_FIND_PATH ":${dir}/lib/pkgconfig")
-         STRING(APPEND PKG_CONFIG_FIND_PATH ":${dir}/lib/${CMAKE_LIBRARY_ARCHITECTURE}/pkgconfig")
-       endif()
+      if ((CMAKE_FIND_ROOT_PATH_MODE_LIBRARY STREQUAL ONLY 
+           OR CMAKE_FIND_ROOT_PATH_MODE_LIBRARY STREQUAL BOTH) 
+           AND CMAKE_FIND_ROOT_PATH)
+         message(STATUS "Generating pkgconfig path from CMAKE_FIND_ROOT_PATH")
+         foreach( dir IN LISTS CMAKE_FIND_ROOT_PATH)
+          if(EXISTS "${dir}/lib/pkgconfig")
+            STRING(APPEND PKG_CONFIG_FIND_PATH ":${dir}/lib/pkgconfig")
+            STRING(APPEND PKG_CONFIG_FIND_PATH ":${dir}/lib/${CMAKE_LIBRARY_ARCHITECTURE}/pkgconfig")
+          endif()
+         endforeach()
+      endif()
+
+      if(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY STREQUAL NEVER 
+              OR CMAKE_FIND_ROOT_PATH_MODE_LIBRARY STREQUAL BOTH 
+              OR NOT CMAKE_FIND_ROOT_PATH_MODE_LIBRARY) 
+        message(STATUS "Generating pkgconfig path from CMAKE_PREFIX_PATH")
+        foreach( dir IN LISTS CMAKE_PREFIX_PATH)
+          if(EXISTS "${dir}/lib/pkgconfig")
+            STRING(APPEND PKG_CONFIG_FIND_PATH ":${dir}/lib/pkgconfig")
+            STRING(APPEND PKG_CONFIG_FIND_PATH ":${dir}/lib/${CMAKE_LIBRARY_ARCHITECTURE}/pkgconfig")
+          endif()
+        endforeach()
+      endif()
+
+      message(STATUS "Generating pkgconfig path from CMAKE_INSTALL_PREFIX")
+      foreach( dir IN LISTS CMAKE_INSTALL_PREFIX)
+        if(EXISTS "${dir}/lib/pkgconfig")
+          STRING(APPEND PKG_CONFIG_FIND_PATH ":${dir}/lib/pkgconfig")
+          STRING(APPEND PKG_CONFIG_FIND_PATH ":${dir}/lib/${CMAKE_LIBRARY_ARCHITECTURE}/pkgconfig")
+        endif()
       endforeach()
+
+      message(STATUS "set(ENV{PKG_CONFIG_PATH} \"$ENV{PKG_CONFIG_PATH}:${PKG_CONFIG_FIND_PATH}\")")
+      set(ENV{PKG_CONFIG_PATH} "$ENV{PKG_CONFIG_PATH}:${PKG_CONFIG_FIND_PATH}")
+      message(STATUS "Looking for libpistache using pkg")
+      pkg_search_module(Pistache IMPORTED_TARGET GLOBAL libpistache)
+   else()
+         message(STATUS "PkgConfig not found. Unbale to locate Pistache with out it")
    endif()
-
-   if(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY STREQUAL NEVER 
-           OR CMAKE_FIND_ROOT_PATH_MODE_LIBRARY STREQUAL BOTH 
-           OR NOT CMAKE_FIND_ROOT_PATH_MODE_LIBRARY) 
-     message(STATUS "Generating pkgconfig path from CMAKE_PREFIX_PATH")
-     foreach( dir IN LISTS CMAKE_PREFIX_PATH)
-       if(EXISTS "${dir}/lib/pkgconfig")
-         STRING(APPEND PKG_CONFIG_FIND_PATH ":${dir}/lib/pkgconfig")
-         STRING(APPEND PKG_CONFIG_FIND_PATH ":${dir}/lib/${CMAKE_LIBRARY_ARCHITECTURE}/pkgconfig")
-       endif()
-     endforeach()
-   endif()
-
-   message(STATUS "Generating pkgconfig path from CMAKE_INSTALL_PREFIX")
-   foreach( dir IN LISTS CMAKE_INSTALL_PREFIX)
-     if(EXISTS "${dir}/lib/pkgconfig")
-       STRING(APPEND PKG_CONFIG_FIND_PATH ":${dir}/lib/pkgconfig")
-       STRING(APPEND PKG_CONFIG_FIND_PATH ":${dir}/lib/${CMAKE_LIBRARY_ARCHITECTURE}/pkgconfig")
-     endif()
-   endforeach()
-
-   message(STATUS "set(ENV{PKG_CONFIG_PATH} \"$ENV{PKG_CONFIG_PATH}:${PKG_CONFIG_FIND_PATH}\")")
-   set(ENV{PKG_CONFIG_PATH} "$ENV{PKG_CONFIG_PATH}:${PKG_CONFIG_FIND_PATH}")
-   message(STATUS "Looking for libpistache using pkg")
-   pkg_search_module(Pistache IMPORTED_TARGET GLOBAL libpistache)
-else()
-      message(STATUS "PkgConfig not found. Unbale to locate Pistache with out it")
 endif()
 
-if(NOT TARGET PkgConfig::Pistache)
+if(NOT TARGET PkgConfig::Pistache OR (MOHSES_FORCE_THIRDPARTY_BUILD AND MOHSES_FORCE_OPENSSL_BUILD))
 
   if (NOT MSVC)
     find_program (MESON_EXECUTABLE 

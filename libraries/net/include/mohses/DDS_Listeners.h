@@ -24,20 +24,21 @@
 
 #include "ListenerInterface.h"
 
+#include <mohses/exports.h>
 using namespace eprosima;
 using namespace eprosima::fastrtps;
 
 namespace AMM {
 
 /// Container class for DDS event listeners.
-class DDS_Listeners {
+class eProsima_user_DllExport DDS_Listeners {
 
 public:
 
    /// Default listener for publishers.
    ///
    /// @note A single instance of this class may be used for all publishers.
-   class PubListener : public PublisherListener {
+   class eProsima_user_DllExport PubListener : public PublisherListener {
    public:
       PubListener() : n_matched(0) {};
 
@@ -54,7 +55,7 @@ public:
    /// Default listener for generic subscribers.
    ///
    /// @note Not very useful by it self. Used as a base class for other type-specifics listeners.
-   class DefaultSubListener : public SubscriberListener {
+   class eProsima_user_DllExport DefaultSubListener : public SubscriberListener {
    public:
       DefaultSubListener() : n_matched(0), n_msg(0) {};
 
@@ -73,103 +74,103 @@ public:
    };
 
    /// Listener for Assessment data.
-   class AssessmentListener : public DefaultSubListener {
+   class eProsima_user_DllExport AssessmentListener : public DefaultSubListener {
    public:
       void onNewDataMessage(Subscriber *sub) override;
    };
 
    /// Listener for Event Fragment data.
-   class EventFragmentListener : public DefaultSubListener {
+   class eProsima_user_DllExport EventFragmentListener : public DefaultSubListener {
    public:
       void onNewDataMessage(Subscriber *sub) override;
    };
 
    /// Listener for Event Record data.
-   class EventRecordListener : public DefaultSubListener {
+   class eProsima_user_DllExport EventRecordListener : public DefaultSubListener {
    public:
       void onNewDataMessage(Subscriber *sub) override;
    };
 
    /// Listener for Fragment Amendment Request data.
-   class FragmentAmendmentRequestListener : public DefaultSubListener {
+   class eProsima_user_DllExport FragmentAmendmentRequestListener : public DefaultSubListener {
    public:
       void onNewDataMessage(Subscriber *sub) override;
    };
 
    /// Listener for Log data.
-   class LogListener : public DefaultSubListener {
+   class eProsima_user_DllExport LogListener : public DefaultSubListener {
    public:
       void onNewDataMessage(Subscriber *sub) override;
    };
 
    /// Listener for Module Configuration data.
-   class ModuleConfigurationListener : public DefaultSubListener {
+   class eProsima_user_DllExport ModuleConfigurationListener : public DefaultSubListener {
    public:
       void onNewDataMessage(Subscriber *sub) override;
    };
 
    /// Listener for Omitted Event data.
-   class OmittedEventListener : public DefaultSubListener {
+   class eProsima_user_DllExport OmittedEventListener : public DefaultSubListener {
    public:
       void onNewDataMessage(Subscriber *sub) override;
    };
 
    /// Listener for Operational Description data.
-   class OperationalDescriptionListener : public DefaultSubListener {
+   class eProsima_user_DllExport OperationalDescriptionListener : public DefaultSubListener {
    public:
       void onNewDataMessage(Subscriber *sub) override;
    };
 
    /// Listener for Physiology Modification data.
-   class PhysiologyModificationListener : public DefaultSubListener {
+   class eProsima_user_DllExport PhysiologyModificationListener : public DefaultSubListener {
    public:
       void onNewDataMessage(Subscriber *sub) override;
    };
 
    /// Listener for Physiology Value data.
-   class PhysiologyValueListener : public DefaultSubListener {
+   class eProsima_user_DllExport PhysiologyValueListener : public DefaultSubListener {
    public:
       void onNewDataMessage(Subscriber *sub) override;
    };
 
    /// Listener for Physiology Waveform data.
-   class PhysiologyWaveformListener : public DefaultSubListener {
+   class eProsima_user_DllExport PhysiologyWaveformListener : public DefaultSubListener {
    public:
       void onNewDataMessage(Subscriber *sub) override;
    };
 
    /// Listener for Render Modification data.
-   class RenderModificationListener : public DefaultSubListener {
+   class eProsima_user_DllExport RenderModificationListener : public DefaultSubListener {
    public:
       void onNewDataMessage(Subscriber *sub) override;
    };
 
    /// Listener for Simulation Control data.
-   class SimulationControlListener : public DefaultSubListener {
+   class eProsima_user_DllExport SimulationControlListener : public DefaultSubListener {
    public:
       void onNewDataMessage(Subscriber *sub) override;
    };
 
    /// Listener for Status data.
-   class StatusListener : public DefaultSubListener {
+   class eProsima_user_DllExport StatusListener : public DefaultSubListener {
    public:
       void onNewDataMessage(Subscriber *sub) override;
    };
 
    /// Listener for Tick data.
-   class TickListener : public DefaultSubListener {
+   class eProsima_user_DllExport TickListener : public DefaultSubListener {
    public:
       void onNewDataMessage(Subscriber *sub) override;
    };
 
    /// Listener for Instrument Data data.
-   class InstrumentDataListener : public DefaultSubListener {
+   class eProsima_user_DllExport InstrumentDataListener : public DefaultSubListener {
    public:
       void onNewDataMessage(Subscriber *sub) override;
    };
 
    /// Listener for Command data.
-   class CommandListener : public DefaultSubListener {
+   class eProsima_user_DllExport CommandListener : public DefaultSubListener {
    public:
       void onNewDataMessage(Subscriber *sub) override;
    };
