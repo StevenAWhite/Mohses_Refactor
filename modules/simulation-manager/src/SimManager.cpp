@@ -5,22 +5,27 @@
 #include <boost/program_options.hpp>
 #include <mohses/BaseLogger.h>
 
+enum class ExecutionErrors {
+   NONE = 0,
+   FILESYSTEM,
+   ARGUMENTS,
+   UNKNOWN,
+};
+
+struct Configuration {
+   bool closed = false;
+   bool daemonize = false;
+   bool autostart = false;
+
+   int sampleRate = 50;
+
+   std::string runtime_directory = "";
+   std::string dds_directory = "./";
+} config;
 using namespace std;
 using namespace std::chrono;
 
 bool closed = false;
-
-/// Displays this module's configuration.
-static void ShowUsage(const std::string &name) {
-   cerr << "Usage: " << name << " <option(s)>"
-   << "\nOptions:\n"
-   << "\t-r,--rate <sample_rate>\tSpecify the sample rate to run at "
-   "(samples per second)\n"
-   << "\t-a\t\t\tAuto-start ticks\n"
-   << "\t-d\t\t\tDaemonize\n"
-   << "\t-h,--help\t\t\tShow this help message\n"
-   << endl;
-}
 
 /// Main menu for this module.
 void ShowMenu(AMM::SimulationManager *simManager) {
@@ -112,43 +117,82 @@ int main(int argc, char *argv[]) {
    static plog::ColorConsoleAppender<plog::TxtFormatter> consoleAppender;
    plog::init(plog::verbose, &consoleAppender);
 
-   int sampleRate = 50;
-   int daemonize = 0;
-   int autostart = 0;
+   using namespace boost::program_options;
 
-   for (int i = 1; i < argc; ++i) {
-      string arg = argv[i];
-      if ((arg == "-h") || (arg == "--help")) {
-         ShowUsage(argv[0]);
-         return 0;
+   std::string help_message;
+   try {
+      // Declare the supported options.
+      options_description desc("Allowed options");
+      desc.add_options()("help,h", "produce help message")
+         ("daemon,d", bool_switch()->default_value(false), "Run in daemon mode for service design.")
+         ("autostart,a", bool_switch()->default_value(false), "Starts module-manager immeditally.")
+         ("sample-rate,r", value<int>()->default_value(50), "Starts module-manager immeditally.")
+         ("version,v", bool_switch()->default_value(false), "version")
+         ("configs", value<std::string>(), "Path to required resource files"),
+         ("directory", "-C", value<std::string>(), "Path to required resource files");
+
+      options_description all_options;
+      all_options.add(desc);
+      variables_map vm;
+      store(command_line_parser(argc, argv).options(all_options).run(), vm);
+      notify(vm);
+
+      if (vm.count("help") || argc < 2) {
+         std::cout << desc << std::endl;
+         return static_cast<int>(ExecutionErrors::NONE);
       }
 
-      if (arg == "-d") {
-         daemonize = 1;
+      if (vm["version"].as<bool>()) {
+         // TODO: PROVIDE THIS AS A #DEFINE FROM CMAKE
+         std::cout << "v1.2.0" << std::endl;
+         return static_cast<int>(ExecutionErrors::NONE);
       }
 
-      if (arg == "-a") {
-         autostart = 1;
+      config.daemonize = vm["daemon"].as<bool>();
+      config.autostart = vm["autostart"].as<bool>();
+      config.sampleRate= vm["sample-rate"].as<int>();
+
+      if (vm.count("configs")) {
+         config.dds_directory = vm["configs"].as<std::string>();
+      }
+      if (vm.count("directory")) {
+         config.runtime_directory = vm["directory"].as<std::string>();
+         try {
+            std::filesystem::current_path(config.runtime_directory);
+         }
+         catch (std::filesystem::filesystem_error) {
+            std::cerr << "Unable to change directory to " << config.runtime_directory << "given by option -C ";
+            exit(static_cast<int>(ExecutionErrors::FILESYSTEM));
+         }
       }
 
    }
+   catch (boost::program_options::required_option /*e*/) {
+      std::cout << argv[0] << ": " << help_message << std::endl;
+      return (static_cast<int>(ExecutionErrors::ARGUMENTS));
+   }
+   catch (std::exception& e) {
+      std::cerr << argv[0] << ": " << e.what() << std::endl;
+      return (static_cast<int>(ExecutionErrors::UNKNOWN));
+   }
+
 
    LOG_INFO << "Simulation Manager starting";
    AMM::SimulationManager simManager;
-   simManager.SetSampleRate(sampleRate);
+   simManager.SetSampleRate(config.sampleRate);
 
    std::this_thread::sleep_for(std::chrono::milliseconds(250));
 
    simManager.PublishOperationalDescription();
    simManager.PublishConfiguration();
 
-   if (autostart == 1) {
+   if (config.autostart == 1) {
       LOG_INFO << "Auto-starting simulation";
       simManager.RunSimulation(true);
    }
 
    while (!closed) {
-      if (daemonize != 1 && autostart != 1) {
+      if (config.daemonize != 1 && config.autostart != 1) {
          ShowMenu(&simManager);
       }
       std::this_thread::sleep_for(std::chrono::milliseconds(250));

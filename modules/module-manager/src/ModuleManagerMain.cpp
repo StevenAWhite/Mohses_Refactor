@@ -165,7 +165,7 @@ int main(int argc, char *argv[]) {
       options_description desc("Allowed options");
       desc.add_options() 
         ("help,h", "produce help message")
-        ("daemon,d", bool_switch()->default_value(false), "Run in daemon mode for service design." )
+        ("daemon,d", bool_switch()->default_value(false), "[Not implemented] Run in daemon mode for service design." )
         ("autostart,a", bool_switch()->default_value(false), "Starts module-manager immeditally." )
         ("setup,s", bool_switch()->default_value(false), "setup")
         ("wipe,w", bool_switch()->default_value(false), "wipe")
@@ -190,21 +190,10 @@ int main(int argc, char *argv[]) {
           return static_cast<int>(ExecutionErrors::NONE);
         }
 
-        if (vm["daemon"].as<bool>()) {
-            config.daemonize = 1;
-        }
-
-        if (vm["autostart"].as<bool>()) {
-            config.autostart = 1;
-        }
-
-        if (vm["setup"].as<bool>()) {
-            config.setup = 1;
-        }
-
-        if (vm["wipe"].as<bool>()) {
-            config.wipe = 1;
-        }
+        config.daemonize = vm["daemon"].as<bool>();
+        config.autostart = vm["autostart"].as<bool>();
+        config.setup = vm["setup"].as<bool>();
+        config.wipe = vm["wipe"].as<bool>();
 
         if (vm.count("configs")) {
             config.dds_directory= vm["configs"].as<std::string>();
