@@ -40,6 +40,7 @@ find_package(fastrtps REQUIRED)
 find_package(TinyXML2 REQUIRED)
 
 
+if(WIN32)
 set_target_properties(Boost::algorithm PROPERTIES
   MAP_IMPORTED_CONFIG_MINSIZEREL Release
   MAP_IMPORTED_CONFIG_RELWITHDEBINFO Release
@@ -48,6 +49,7 @@ set_target_properties(Boost::serialization PROPERTIES
   MAP_IMPORTED_CONFIG_MINSIZEREL Release
   MAP_IMPORTED_CONFIG_RELWITHDEBINFO Release
   )
+endif()
 
 if (COMMAND FastRTPS_IDLGEN)
     add_custom_target(generate_from_idl_standard 

@@ -27,9 +27,7 @@
 #include "thirdparty/sqlite_modern_cpp.h"
 
 using namespace AMM;
-using namespace std;
 using namespace std::chrono;
-using namespace std::filesystem;
 using namespace rapidjson;
 using namespace Pistache;
 using namespace eprosima;
@@ -84,11 +82,11 @@ std::vector<std::string> labsStorage;
 bool m_runThread = false;
 int64_t lastTick = 0;
 
-const string sysPrefix = "[SYS]";
-const string actPrefix = "[ACT]";
-const string loadScenarioPrefix = "LOAD_SCENARIO:";
-const string loadPrefix = "LOAD_STATE:";
-const string loadPatientPrefix = "LOAD_PATIENT:";
+const std::string sysPrefix = "[SYS]";
+const std::string actPrefix = "[ACT]";
+const std::string loadScenarioPrefix = "LOAD_SCENARIO:";
+const std::string loadPrefix = "LOAD_STATE:";
+const std::string loadPatientPrefix = "LOAD_PATIENT:";
 
 void SendReset();
 
@@ -301,7 +299,7 @@ class RESTListener : public ListenerInterface {
 public:
 
     void onNewStatus(AMM::Status &st, SampleInfo_t *info) {
-        ostringstream statusValue;
+        std::ostringstream statusValue;
         statusValue << AMM::Utility::EStatusValueStr(st.value());
 
         LOG_DEBUG << "[" << st.module_id().id() << "][" << st.module_name() << "]["
@@ -367,8 +365,8 @@ public:
             statusStorage["STATUS"] = "RUNNING";
         }
         lastTick = t.frame();
-        statusStorage["TICK"] = to_string(t.frame());
-        statusStorage["TIME"] = to_string(t.time());
+        statusStorage["TICK"] = std::to_string(t.frame());
+        statusStorage["TIME"] = std::to_string(t.time());
     }
 
     void onNewSimulationControl(AMM::SimulationControl &simControl, SampleInfo_t *info) {
@@ -505,6 +503,19 @@ DDSManager<RESTListener> *mgr;
 AMM::UUID m_uuid;
 
 database db("amm.db");
+
+std::string file_time_to_string(const std::filesystem::file_time_type& ftime)
+{
+#if __cpp_lib_format
+    return std::format("{:%c}", ftime);
+#else
+    std::time_t cftime = std::chrono::system_clock::to_time_t(
+        std::chrono::file_clock::to_sys(ftime));
+    std::string str = std::asctime(std::localtime(&cftime));
+    str.pop_back(); // rm the trailing '\n' put by `asctime`
+    return str;
+#endif
+}
 
 void SendReset() {
     AMM::SimulationControl simControl;
@@ -810,21 +821,20 @@ private:
         Writer<StringBuffer> writer(s);
 
         writer.StartArray();
-        if (exists(state_path) && is_directory(state_path)) {
-            path p(state_path);
-            if (is_directory(p)) {
+        if (std::filesystem::exists(state_path) && std::filesystem::is_directory(state_path)) {
+            std::filesystem::path p(state_path);
+            if (std::filesystem::is_directory(p)) {
                 std::vector<std::filesystem::path> paths(
                         std::filesystem::directory_iterator{state_path}, std::filesystem::directory_iterator{}
                 );
                 std::sort(paths.begin(), paths.end());
-                for (auto const &path : paths) {
+                for (auto const &this_path : paths) {
                     writer.StartObject();
                     writer.Key("name");
-                    writer.String(path.filename().c_str());
+                    writer.String(this_path.filename().c_str());
                     writer.Key("last_updated");
-                    stringstream writeTime;
-                    writeTime << last_write_time(path);
-                    writer.String(writeTime.str().c_str());
+                    auto lwt = std::filesystem::last_write_time(this_path.wstring());
+                    writer.String(file_time_to_string(lwt).c_str());
                     writer.EndObject();
                 }
             }
@@ -842,9 +852,9 @@ private:
         if (name != "StandardMale@0s.xml") {
             std::ostringstream deleteFile;
             deleteFile << state_path << "/" << name;
-            path deletePath(deleteFile.str().c_str());
-            if (exists(deletePath) && is_regular_file(deletePath)) {
-                LOG_INFO << "Deleting " << deletePath;
+            std::filesystem::path deletePath(deleteFile.str().c_str());
+            if (std::filesystem::exists(deletePath) && is_regular_file(deletePath)) {
+                LOG_INFO << "Deleting " << deletePath.string();
                 std::filesystem::remove(deletePath);
                 response.send(Pistache::Http::Code::Ok, "Deleted",
                               MIME(Application, Json));
@@ -865,19 +875,18 @@ private:
         Writer<StringBuffer> writer(s);
 
         writer.StartArray();
-        if (exists(scenario_path) && is_directory(scenario_path)) {
-            path p(scenario_path);
-            if (is_directory(p)) {
-                directory_iterator end_iter;
-                for (directory_iterator dir_itr(p); dir_itr != end_iter; ++dir_itr) {
+        if (std::filesystem::exists(scenario_path) && std::filesystem::is_directory(scenario_path)) {
+            std::filesystem::path p(scenario_path);
+            if (std::filesystem::is_directory(p)) {
+                std::filesystem::directory_iterator end_iter;
+                for (std::filesystem::directory_iterator dir_itr(p); dir_itr != end_iter; ++dir_itr) {
                     if (is_regular_file(dir_itr->status())) {
                         writer.StartObject();
                         writer.Key("name");
                         writer.String(dir_itr->path().filename().c_str());
                         writer.Key("last_updated");
-                        stringstream writeTime;
-                        writeTime << last_write_time(dir_itr->path());
-                        writer.String(writeTime.str().c_str());
+                        auto lwt = std::filesystem::last_write_time(dir_itr->path().wstring());
+                        writer.String(file_time_to_string(lwt).c_str());
                         writer.EndObject();
                     }
                 }
@@ -896,19 +905,19 @@ private:
         Writer<StringBuffer> writer(s);
 
         writer.StartArray();
-        if (exists(patient_path) && is_directory(patient_path)) {
-            path p(patient_path);
-            if (is_directory(p)) {
-                directory_iterator end_iter;
-                for (directory_iterator dir_itr(p); dir_itr != end_iter; ++dir_itr) {
+        if (std::filesystem::exists(patient_path) && std::filesystem::is_directory(patient_path)) {
+            std::filesystem::path p(patient_path);
+            if (std::filesystem::is_directory(p)) {
+                std::filesystem::directory_iterator end_iter;
+                for (std::filesystem::directory_iterator dir_itr(p); dir_itr != end_iter; ++dir_itr) {
                     if (is_regular_file(dir_itr->status())) {
                         writer.StartObject();
                         writer.Key("name");
                         writer.String(dir_itr->path().filename().c_str());
                         writer.Key("description");
-                        stringstream writeTime;
-                        writeTime << last_write_time(dir_itr->path());
-                        writer.String(writeTime.str().c_str());
+                        std::stringstream writeTime;
+                        auto lwt = std::filesystem::last_write_time(dir_itr->path().wstring());
+                        writer.String(file_time_to_string(lwt).c_str());
                         writer.EndObject();
                     }
                 }
@@ -926,7 +935,7 @@ private:
 
     }
 
-    int writeToFile(const string & filename, const string & data) {
+    int writeToFile(const std::string & filename, const std::string & data) {
         std::fstream out;
 
         out.open(filename, std::fstream::in | std::fstream::out | std::fstream::trunc);
@@ -965,7 +974,7 @@ private:
         auto s = std::chrono::steady_clock::now();
         writeToFile(filename, request.body());
         auto dt = std::chrono::steady_clock::now() - s;
-        LOG_INFO << "File upload processed in: " << std::chrono::duration_cast<std::chrono::microseconds>(dt).count()<< endl;
+        LOG_INFO << "File upload processed in: " << std::chrono::duration_cast<std::chrono::microseconds>(dt).count()<< std::endl;
         response.send(Http::Code::Ok);
 
         LOG_INFO << "Sending out system message that there's an assessment available.";
@@ -994,19 +1003,18 @@ private:
         Writer<StringBuffer> writer(s);
 
         writer.StartArray();
-        if (exists(action_path) && is_directory(action_path)) {
-            path p(action_path);
-            if (is_directory(p)) {
-                directory_iterator end_iter;
-                for (directory_iterator dir_itr(p); dir_itr != end_iter; ++dir_itr) {
+        if (std::filesystem::exists(action_path) && std::filesystem::is_directory(action_path)) {
+            std::filesystem::path p(action_path);
+            if (std::filesystem::is_directory(p)) {
+                std::filesystem::directory_iterator end_iter;
+                for (std::filesystem::directory_iterator dir_itr(p); dir_itr != end_iter; ++dir_itr) {
                     if (is_regular_file(dir_itr->status())) {
                         writer.StartObject();
                         writer.Key("name");
                         writer.String(dir_itr->path().filename().c_str());
                         writer.Key("description");
-                        stringstream writeTime;
-                        writeTime << last_write_time(dir_itr->path());
-                        writer.String(writeTime.str().c_str());
+                        auto lwt = std::filesystem::last_write_time(dir_itr->path().wstring());
+                        writer.String(file_time_to_string(lwt).c_str());
                         writer.EndObject();
                     }
                 }
@@ -1168,8 +1176,8 @@ private:
               " module_capabilities "
               " WHERE module_id = ?"
            << id >>
-           [&](string module_id, string module_guid, string module_name, string description,
-               string capabilities, string manufacturer, string model) {
+           [&](std::string module_id, std::string module_guid, std::string module_name, std::string description,
+               std::string capabilities, std::string manufacturer, std::string model) {
                writer.StartObject();
 
                writer.Key("Module_ID");
@@ -1213,8 +1221,8 @@ private:
               " module_capabilities "
               " WHERE module_guid = ?"
            << guid >>
-           [&](string module_id, string module_guid, string module_name,
-               string capabilities, string manufacturer, string model) {
+           [&](std::string module_id, std::string module_guid, std::string module_name,
+               std::string capabilities, std::string manufacturer, std::string model) {
                writer.StartObject();
 
                writer.Key("Module_ID");
@@ -1273,7 +1281,7 @@ private:
         Writer<StringBuffer> writer(s);
         writer.StartArray();
         db << "SELECT DISTINCT module_name FROM module_capabilities where module_name NOT LIKE 'AMM_%'"
-           >> [&](string module_name) {
+           >> [&](std::string module_name) {
                writer.String(module_name.c_str());
            };
         writer.EndArray();
@@ -1294,9 +1302,9 @@ private:
               "module_capabilities.model as model "
               " FROM "
               " module_capabilities; " >>
-           [&](string module_id, string module_name, string description,
-               string capabilities,
-               string manufacturer, string model) {
+           [&](std::string module_id, std::string module_name, std::string description,
+               std::string capabilities,
+               std::string manufacturer, std::string model) {
                writer.StartObject();
 
                writer.Key("Module_ID");
@@ -1343,7 +1351,7 @@ private:
               "LEFT JOIN module_capabilities "
               "ON "
               "events.source = module_capabilities.module_guid" >>
-           [&](string module_id, string module_name, string source, string topic, int64_t timestamp, string data) {
+           [&](std::string module_id, std::string module_name, std::string source, std::string topic, int64_t timestamp,std::string data) {
                writer.StartObject();
                writer.Key("module_id");
                writer.String(module_id.c_str());
@@ -1380,8 +1388,8 @@ private:
               "LEFT JOIN module_capabilities "
               "ON "
               "events.source = module_capabilities.module_guid" >>
-           [&](string module_name, string source, string topic, int64_t tick, int64_t timestamp,
-               string data) {
+           [&](std::string module_name, std::string source, std::string topic, int64_t tick, int64_t timestamp,
+               std::string data) {
                std::time_t temp = timestamp;
                std::tm *t = std::gmtime(&temp);
                s << std::put_time(t, "%Y-%m-%d %I:%M:%S %p") << "," << module_name << "," << source << "," << topic
@@ -1409,7 +1417,7 @@ private:
               "logs.timestamp "
               "FROM "
               "logs " >>
-           [&](string module_name, string module_guid, string module_id, string message, string log_level,
+           [&](std::string module_name, std::string module_guid, std::string module_id, std::string message, std::string log_level,
                int64_t timestamp) {
 
                writer.StartObject();
@@ -1445,7 +1453,7 @@ private:
               "logs.timestamp "
               "FROM "
               "logs " >>
-           [&](string module_name, string module_guid, string module_id, string message, string log_level,
+           [&](std::string module_name, std::string module_guid, std::string module_id, std::string message, std::string log_level,
                int64_t timestamp) {
                std::time_t temp = timestamp;
                std::tm *t = std::gmtime(&temp);
@@ -1534,10 +1542,10 @@ private:
 
 
 static void show_usage(const std::string &name) {
-    cerr << "Usage: " << name << " <option(s)>"
+        std::cerr << "Usage: " << name << " <option(s)>"
          << "\nOptions:\n"
          << "\t-h,--help\t\tShow this help message\n"
-         << endl;
+         << std::endl;
 }
 
 Port port(static_cast<uint16_t>(portNumber));
@@ -1564,7 +1572,7 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    string action;
+    std::string action;
 
     ResetLabs();
 
@@ -1620,14 +1628,14 @@ int main(int argc, char *argv[]) {
     LOG_INFO << "Ready.";
 
     while (m_runThread) {
-        getline(cin, action);
+        getline(std::cin, action);
         transform(action.begin(), action.end(), action.begin(), ::toupper);
         if (action == "EXIT") {
             m_runThread = false;
             LOG_INFO << "Shutting down from command-line.";
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(250));
-        cout.flush();
+        std::cout.flush();
     }
 
     server.shutdown();

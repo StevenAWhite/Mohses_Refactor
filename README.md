@@ -167,3 +167,12 @@ overview of cross-compiling with CMake. If you have a specific use case such as 
     $ cmake --build Mohses/build-aarch64-linux-gnu
     $ cmake --build Mohses/build-aarch64-linux-gnu --target install
 ```
+
+
+## Installing Mohses as an Administrator
+
+
+
+## Running Mohses System
+
+## Migrating from AMM 1.2.1 to Mohses 2.0

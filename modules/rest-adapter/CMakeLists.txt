@@ -59,8 +59,7 @@ if (MOHSES_BUILD_REST_ADAPTER AND NOT WIN32)
             Boost::uuid
             Boost::process
             )
-    set(CMAKE_CXX_STANDARD 20) 
-    set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
     set_target_properties(mohses_rest_adapter PROPERTIES 
                  FOLDER ${CMAKE_FOLDER}/modules 
                  CXX_STANDARD 20
