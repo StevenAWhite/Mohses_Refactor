@@ -63,7 +63,7 @@ if (MOHSES_BUILD_REST_ADAPTER AND NOT WIN32)
     set_target_properties(mohses_rest_adapter PROPERTIES 
                  FOLDER ${CMAKE_FOLDER}/modules 
                  CXX_STANDARD 20
-                 INSTALL_RPATH "\${ORIGIN}:\${ORIGIN}/../lib:\${ORIGIN}/lib"
+                 INSTALL_RPATH "\$ORIGIN:\$ORIGIN/../lib:\$ORIGIN/lib"
     ) 
 
     set(MODULE_TARGET_NAME mohses_rest_adapter)

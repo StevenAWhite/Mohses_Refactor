@@ -74,8 +74,7 @@ add_library("net" SHARED ${MOHSES_NET_CPP} ${MOHSES_NET_H})
 set_target_properties(net PROPERTIES
           DEFINE_SYMBOL EPROSIMA_USER_DLL_EXPORT
           FOLDER "${CMAKE_FOLDER}/libraries"
-          INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "" #include/plog" "src/idl"
-          INSTALL_RPATH "\${ORIGIN}:\${ORIGIN}/../lib:\${ORIGIN}/lib"
+          INSTALL_RPATH "\$ORIGIN:\$ORIGIN/../lib:$ORIGIN/lib"
 )
 add_library(mohses::net ALIAS net)
 
@@ -83,8 +82,8 @@ message(STATUS "Loading Mohses::Net")
 
 target_link_libraries(
    net
-        PUBLIC eProsima::fastrtps
         PUBLIC eProsima::fastcdr
+        PUBLIC eProsima::fastrtps
         $<TARGET_NAME_IF_EXISTS:Boost::dynamic_linking>
         $<TARGET_NAME_IF_EXISTS:Boost::disable_autolinking>
         PUBLIC Boost::algorithm

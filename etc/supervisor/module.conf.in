@@ -7,5 +7,5 @@ priority=105
 numprocs=1
 user=@MOHSES_USERNAME@
 redirect_stderr=true
-stdout_logfile=@MOHSES_LOGGING_DIR@/amm_module_manager.log
+stdout_logfile=@MOHSES_LOGGING_DIR@/@MODULE_TARGET_NAME@.log
 

@@ -53,7 +53,7 @@ if (MOHSES_BUILD_SIMULATION_MANAGER)
                 )
         set_target_properties(mohses_simulation_manager PROPERTIES 
                  FOLDER ${CMAKE_FOLDER}/modules
-                 INSTALL_RPATH "\${ORIGIN}:\${ORIGIN}/../lib:\${ORIGIN}/lib"
+                 INSTALL_RPATH "\$ORIGIN:\$ORIGIN/../lib:\$ORIGIN/lib"
                  CXX_STANDARD 20
         ) 
 

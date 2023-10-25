@@ -77,7 +77,7 @@ if (MOHSES_BUILD_TCP_BRIDGE)
             )
     set_target_properties(mohses_tcp_bridge PROPERTIES 
                  FOLDER ${CMAKE_FOLDER}/modules 
-                 INSTALL_RPATH "\${ORIGIN}:\${ORIGIN}/../lib:\${ORIGIN}/lib"
+                 INSTALL_RPATH "\$ORIGIN:\$ORIGIN/../lib:\$ORIGIN/lib"
                  CXX_STANDARD 17
     ) 
 

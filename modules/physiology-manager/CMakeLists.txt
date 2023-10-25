@@ -58,7 +58,7 @@ if (MOHSES_BUILD_physiology_manager)
 
         set_target_properties(mohses_physiology_manager PROPERTIES 
                  FOLDER ${CMAKE_FOLDER}/modules 
-                 INSTALL_RPATH "\${ORIGIN}:\${ORIGIN}/../lib:\${ORIGIN}/lib"
+                 INSTALL_RPATH "\$ORIGIN:\$ORIGIN/../lib:\$ORIGIN/lib"
                  CXX_STANDARD 20
         ) 
 

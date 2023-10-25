@@ -49,16 +49,19 @@ def read_library_rpath(library):
    print (f"Error running grep on this system.\n Error:\n {grep.stderr}")
    return set()
   #TODO: Regex Test output and process according to format
-  awk = subprocess.run(['awk', '{ match($5, /\[(.*)\]/, captures);  if(captures[1] != "") print captures[1] }'],
-                         universal_newlines=True, capture_output=True, input=grep.stdout)
-  if awk.stderr:
-   print (f"Error running awk on this system.\n Error:\n {awk.stderr}")
-   return set()
-  rpath_set = set()
-  for paths in awk.stdout.splitlines():
-    rpath_set = rpath_set.union(re.split("[:;]", paths))
-  
-  return rpath_set
+  paths = set()
+  rex = re.compile('\[(.*)\]', re.IGNORECASE)
+  for line in grep.stdout.splitlines():
+      columns= re.split('\s+', line)
+      path = rex.match(columns[5])
+      if path[1]:
+          runtime_path  = path[1]
+          runtime_path_segments = re.split(r'[:;]', runtime_path)
+          for segment in runtime_path_segments:
+              possible_entry = segment.replace("$ORIGIN", os.path.basename(library))
+              if os.path.exists(possible_entry) and os.path.isdir(possible_entry):
+                  paths.add(possible_entry)
+  return paths
 
 def read_needed_libraries(library):
   #TODO: Support Non ELF Binaries use 
@@ -78,13 +81,16 @@ def read_needed_libraries(library):
   if grep.stderr:
    print (f"Error running grep on this system.\n Error:\n {grep.stderr}")
    return set()
-  #TODO: Regex Test output and process according to format
-  awk = subprocess.run(['awk', '{ match($5, /\[(.*)\]/, captures);  if(captures[1] != "") print captures[1] }'],
-                         universal_newlines=True, capture_output=True, input=grep.stdout)
-  if awk.stderr:
-   print (f"Error running awk on this system.\n Error:\n {awk.stderr}")
-   return set()
-  return set(awk.stdout.splitlines())
+
+  libs = set()
+  rex = re.compile('\[(.*)\]', re.IGNORECASE)
+  for line in grep.stdout.splitlines():
+      split = re.split('\s+', line)
+      lib = rex.match(split[5])
+
+      if lib[1]:
+          libs.add(lib[1])
+  return libs
 
 def find_library(library, paths, triple):
   if os.path.isfile(library):
@@ -105,16 +111,16 @@ def fixup_bundle(app, libs, paths, destination, dryrun):
   work_queue = read_needed_libraries(app)
   toolchain  = read_gnu_triple(app)
 
-  print(f"Searching for {toolchain} libraries\n")
-
-  path_queue = set(re.split("[:;]",paths))
-  path_queue = path_queue.union(read_library_rpath(app))
-  path_queue = path_queue.union([
-      f"/usr/{toolchain}/lib",
-      f"/usr/lib/{toolchain}/",
-      f"/usr/local/{toolchain}/lib",
-      f"/usr/local/lib/{toolchain}/",
-      ])
+  path_queue = set()
+  if paths:
+    path_queue = set(re.split(r'[:;]',paths))
+    path_queue = path_queue.union(read_library_rpath(app))
+    path_queue = path_queue.union([
+        f"/usr/{toolchain}/lib",
+        f"/usr/lib/{toolchain}/",
+        f"/usr/local/{toolchain}/lib",
+        f"/usr/local/lib/{toolchain}/",
+        ])
 
   if libs:
    work_queue.union(set(libs))
@@ -122,7 +128,7 @@ def fixup_bundle(app, libs, paths, destination, dryrun):
   print(f"""
   -- app='{app}'
   -- libs='{work_queue}'
-  -- paths='{path_queue}'
+  -- dirs='{path_queue}'
   """)
 
   while work_queue:
@@ -141,7 +147,7 @@ def fixup_bundle(app, libs, paths, destination, dryrun):
   for library in required_libraries:
     print (f"\t {library} --> {destination}")
     if not dryrun:
-     shutil.copy2 library, destination)
+     shutil.copy2( library, destination)
     
 
 def main(argc, argv):
@@ -164,7 +170,9 @@ def main(argc, argv):
 
   dirs = args.dirs #TODO: Support Hints
   libs = args.libs
-  
+
+  if not args.app:
+      print (parser.print_help())
 
   #TODO: Support output_dir
   for app in  args.app:
@@ -175,7 +183,7 @@ def main(argc, argv):
         destination = f"{os.path.dirname(app)}/{args.outdir}/" 
     else:
      destination = f"{os.path.dirname(app)}/"
-    fixup_bundle(app,libs,dirs, destination, args.dryrun)
+    fixup_bundle(app, libs, dirs, destination, args.dryrun)
   pass
 
 if __name__ == "__main__":

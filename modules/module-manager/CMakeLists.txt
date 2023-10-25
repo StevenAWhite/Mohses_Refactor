@@ -50,11 +50,13 @@ if (MOHSES_BUILD_MODULE_MANAGER)
                 Boost::program_options
                 Boost::uuid
                 )
+ 
         set_target_properties(mohses_module_manager PROPERTIES 
                  FOLDER ${CMAKE_FOLDER}/modules
                  CXX_STANDARD 20
-                 INSTALL_RPATH "\${ORIGIN}:\${ORIGIN}/../lib:\${ORIGIN}/lib"
+                 INSTALL_RPATH "\$ORIGIN:\$ORIGIN/../lib:\$ORIGIN/lib"
          ) 
+
         set(MODULE_TARGET_NAME mohses_module_manager)
         set(MODULE_ARGUMENTS "-s -a")
         install(TARGETS ${MODULE_TARGET_NAME} RUNTIME DESTINATION bin)
