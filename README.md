@@ -78,9 +78,9 @@ the additonal dependencies.
 
 ### 3) Option 2: Apt base dependency installs
 
-Mohses has a very specific depency for fastddr and biogears. In this example we install all
-but FastCDR/FASTDDR and BioGears using apt. Then use MOHSES_FETCH_THIRDPARTY to simplify the building of
-BioGears and FastDDR.
+Mohses has a very specific depency for fastdds and biogears. In this example we install all
+but FastCDR/FASTDDS and BioGears using apt. Then use MOHSES_FETCH_THIRDPARTY to simplify the building of
+BioGears and FastDDS.
 
 ```bash
     $ sudo apt install libssl-dev libboost-all-dev libz-dev
@@ -94,7 +94,7 @@ BioGears and FastDDR.
     $ cmake --build Mohses/build
 ```
 
-If you wanted to build FastCDR, FastDDR, Pistache, BioGears yourself. You would simply set the 
+If you wanted to build FastCDR, FastDDS, Pistache, BioGears yourself. You would simply set the 
 CMAKE_PREFIX_PATH variable to include the INSTALL_ROOT of the installations. For example if a previous
 user had placed the dependecies in `/home/amm/usr` passing `-D CMAKE_PREFIX_PATH=/home/amm/usr` to the cmake
 configuration would allow it to find all the dependcies.  For cross compilation set `-D CMAKE_FIND_ROOT_PATH=/home/amm/cross-sysroot`
