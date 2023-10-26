@@ -359,8 +359,8 @@ if(NOT OpenSSL_FOUND )
   endif()
 endif()
 
-if(NOT MOHSES_FORCE_THIRDPARTY_BUILD AND MOHSES_FORCE_BOOST_BUILD)
-   find_package(Boost QUIET )
+if(NOT (MOHSES_FORCE_THIRDPARTY_BUILD AND MOHSES_FORCE_BOOST_BUILD))
+   find_package(Boost QUIET)
 endif()
 
 if(NOT Boost_FOUND )
@@ -374,6 +374,7 @@ endif()
 if(NOT (MOHSES_FORCE_THIRDPARTY_BUILD AND MOHSES_FORCE_BOOST_BUILD))
    find_package(TinyXML2 QUIET )
 endif()
+
 if(NOT TinyXML2_FOUND )
   Thirdparty_Build(tinyxml2
     GIT_REPOSITORY https://github.com/leethomason/tinyxml2.git
@@ -388,7 +389,7 @@ if(NOT (MOHSES_FORCE_THIRDPARTY_BUILD AND MOHSES_FORCE_FOONATHAN_BUILD))
    find_package(foonathan_memory QUIET )
 endif()
 
-if(NOT foonathan_memory_FOUNDOR )
+if(NOT foonathan_memory_FOUND )
   Thirdparty_Build(foonathan_memory
     GIT_REPOSITORY  https://github.com/foonathan/memory.git
     GIT_TAG v0.7-3

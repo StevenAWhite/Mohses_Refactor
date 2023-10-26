@@ -143,7 +143,9 @@ overview of cross-compiling with CMake. If you have a specific use case such as 
                         libboost-filesystem-dev:arm64 \
                         libboost-serialization-dev:arm64 \
                         libboost-program-options-dev:arm64 \
-                        libboost-thread-dev:arm64 
+                        libboost-thread-dev:arm64 \
+                        libboost-exception-dev:arm64 \
+                        libboost-container-dev:arm64
    # Debian doesn't duplicate headers
    $ sudo ln -s  /usr/include/boost/ /usr/aarch64-linux-gnu/include/boost
    $ sudo ln -s  /usr/include/openssl/ /usr/aarch64-linux-gnu/include/openssl

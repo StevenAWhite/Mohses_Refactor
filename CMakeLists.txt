@@ -62,6 +62,12 @@ else()
    message(STATUS "MOHSES_FETCH_THIRDPARTY=OFF")
    find_package(Boost REQUIRED COMPONENTS atomic chrono date_time exception container filesystem program_options serialization system thread)
 
+ if(WIN32)
+  set_target_properties(Boost::filesystem PROPERTIES
+     MAP_IMPORTED_CONFIG_MINSIZEREL Release
+     MAP_IMPORTED_CONFIG_RELWITHDEBINFO Release
+  )
+
   set_target_properties(Boost::filesystem PROPERTIES
      MAP_IMPORTED_CONFIG_MINSIZEREL Release
      MAP_IMPORTED_CONFIG_RELWITHDEBINFO Release
@@ -106,6 +112,7 @@ else()
      MAP_IMPORTED_CONFIG_MINSIZEREL Release
      MAP_IMPORTED_CONFIG_RELWITHDEBINFO Release
   )
+endif()
 
    if (NOT TARGET Boost::asio)
      message(STATUS "EXPORTING Boost::asio") 
@@ -128,6 +135,13 @@ else()
      message(STATUS "${PACKAGE_EXPORT} target exists")
    endif()
    
+   if (NOT TARGET Boost::exception)
+     message(STATUS "EXPORTING Boost::exception") 
+     add_library(Boost::exception ALIAS Boost::headers)
+   elseif(TARGET ${PACKAGE_EXPORT})
+     message(STATUS "${PACKAGE_EXPORT} target exists")
+   endif()
+
    if (NOT TARGET Boost::foreach)
      message(STATUS "EXPORTING Boost::foreach") 
      add_library(Boost::foreach ALIAS Boost::headers)
