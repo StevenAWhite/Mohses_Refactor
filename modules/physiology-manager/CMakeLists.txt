@@ -63,7 +63,7 @@ if (MOHSES_BUILD_physiology_manager)
         ) 
 
         set(MODULE_TARGET_NAME mohses_physiology_manager )
-        set(MODULE_ARGUMENTS "-a --configs=${MOHSES_RUNTIME_DIR}/config" )
+        set(MODULE_ARGUMENTS "-a --configs=${MOHSES_RUNTIME_DIR}/config" --resources=${MOHSES_RUNTIME_DIR} )
         install(TARGETS ${MODULE_TARGET_NAME} RUNTIME DESTINATION bin)
         if(NOT WIN32)
           configure_file(${CMAKE_SOURCE_DIR}/etc/supervisor/module.conf.in
