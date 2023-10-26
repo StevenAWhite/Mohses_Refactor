@@ -90,6 +90,7 @@ def read_needed_libraries(library):
 
       if lib[1]:
           libs.add(lib[1])
+
   return libs
 
 def find_library(library, paths, triple):
@@ -135,12 +136,19 @@ def fixup_bundle(app, libs, paths, destination, dryrun):
      library_name = work_queue.pop() 
      library_location = find_library(library_name,path_queue,toolchain)
      if library_location:
+       if library_location not in required_libraries:
+          required_libraries.append(library_location)
        path_queue = path_queue.union(read_library_rpath(library_location))
+
 
        additional_libraries = read_needed_libraries(library_location)
        additional_libraries.discard(library_location)
-       work_queue.union(additional_libraries)
-       required_libraries.append(library_location)
+      
+       for new_library in additional_libraries:
+           library_location = find_library(new_library,path_queue,toolchain)
+           if library_location not in required_libraries:
+             work_queue.add(new_library)
+             required_libraries.append(library_location)
      else:
        print(f"Error unable to find {library_name}")
 
@@ -177,7 +185,7 @@ def main(argc, argv):
   #TODO: Support output_dir
   for app in  args.app:
     if args.outdir:
-     if os.isabs(args.outdir):
+     if os.path.isabs(args.outdir):
         destination = args.outdir
      else:
         destination = f"{os.path.dirname(app)}/{args.outdir}/" 

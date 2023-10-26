@@ -70,18 +70,18 @@ set(MOHSES_NET_H   ${MOHSES_NET_IDL_HEADERS} ${MOHSES_NET_HEADERS} ${PLOG_HEADER
 
 
 
-add_library("net" SHARED ${MOHSES_NET_CPP} ${MOHSES_NET_H})
-set_target_properties(net PROPERTIES
+add_library(mohses_net SHARED ${MOHSES_NET_CPP} ${MOHSES_NET_H})
+set_target_properties(mohses_net PROPERTIES
           DEFINE_SYMBOL EPROSIMA_USER_DLL_EXPORT
           FOLDER "${CMAKE_FOLDER}/libraries"
           INSTALL_RPATH "\$ORIGIN:\$ORIGIN/../lib:$ORIGIN/lib"
 )
-add_library(mohses::net ALIAS net)
+add_library(mohses::net ALIAS mohses_net)
 
 message(STATUS "Loading Mohses::Net")
 
 target_link_libraries(
-   net
+   mohses_net
         PUBLIC eProsima::fastcdr
         PUBLIC eProsima::fastrtps
         $<TARGET_NAME_IF_EXISTS:Boost::dynamic_linking>
@@ -90,13 +90,13 @@ target_link_libraries(
         PUBLIC Boost::serialization
 )
 
-target_include_directories (net PUBLIC
+target_include_directories (mohses_net PUBLIC
 $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/idl>
 $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
 $<INSTALL_INTERFACE:include>
 )
 
-install(TARGETS net
+install(TARGETS mohses_net
         EXPORT ${PROJECT_NAME}
         LIBRARY DESTINATION "lib"
         PUBLIC_HEADER DESTINATION "include/amm"

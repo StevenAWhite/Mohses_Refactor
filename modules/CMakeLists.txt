@@ -2,23 +2,39 @@ cmake_minimum_required(VERSION 3.18.0)
 
 include(GNUInstallDirs)
 
-set(SUPERVISOR_RUNTIME_DIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}")
-set(SUPERVISOR_LOGGING_DIR "${CMAKE_INSTALL_PREFIX}/logs")
-set(SUPERVISOR_CONFIG_DIR  "${CMAKE_INSTALL_PREFIX}/share/mohses/supervisor/")
-set(SUPERVISOR_USERNAME    "mohses")  
-if(NOT WIN32)
-   if(CMAKE_INSTALL_PREFIX MATCHES "^/usr(/.*)?$")
-     set(SUPERVISOR_RUNTIME_DIR "/opt/mohses/"   )
-     set(SUPERVISOR_LOGGING_DIR "/var/log/mohses")
-     set(SUPERVISOR_CONFIG_DIR "/etc/supervisor/conf.d/")
-     set(SUPERVISOR_USERNAME    "mohses")   
-    endif()
-endif()
 
-set(MOHSES_RUNTIME_DIR ${SUPERVISOR_RUNTIME_DIR} CACHE PATH "Supervisor scripts will be configured to run services in this directory. Additionally, All runtime files will be installed here" )
-set(MOHSES_LOGGING_DIR ${SUPERVISOR_LOGGING_DIR} CACHE PATH "Supervisor scripts will be configured to place runtime logs in this directory" )
-set(MOHSES_CONFIG_DIR ${SUPERVISOR_CONFIG_DIR} CACHE PATH "Supervisor scripts will be installed in the following directory." )
-set(MOHSES_USERNAME ${SUPERVISOR_USERNAME}  CACHE STRING "Supervisor scripts will be configured, so that services run under this username" )
+if(NOT MOHSES_RUNTIME_DIR)
+  set(MOHSES_RUNTIME_DIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}")
+  if(NOT WIN32)
+     if(CMAKE_INSTALL_PREFIX MATCHES "^/usr(/.*)?$")
+        set(MOHSES_RUNTIME_DIR "/opt/mohses/"   )
+      endif()
+  endif()
+endif()
+if(NOT MOHSES_LOGGING_DIR)
+  set(MOHSES_LOGGING_DIR "${CMAKE_INSTALL_PREFIX}/logs")
+  if(NOT WIN32)
+     if(CMAKE_INSTALL_PREFIX MATCHES "^/usr(/.*)?$")
+        set(MOHSES_LOGGING_DIR "/var/log/mohses")
+      endif()
+  endif()
+endif()
+if(NOT MOHSES_CONFIG_DIR)
+  set(MOHSES_CONFIG_DIR  "${CMAKE_INSTALL_PREFIX}/share/mohses/supervisor/")
+  if(NOT WIN32)
+     if(CMAKE_INSTALL_PREFIX MATCHES "^/usr(/.*)?$")
+        set(MOHSES_CONFIG_DIR "/etc/supervisor/conf.d/")
+      endif()
+  endif()
+endif()
+if(NOT MOHSES_USERNAME)
+  set(MOHSES_USERNAME    "mohses")  
+  if(NOT WIN32)
+     if(CMAKE_INSTALL_PREFIX MATCHES "^/usr(/.*)?$")
+        set(MOHSES_USERNAME    "mohses")   
+      endif()
+  endif()
+endif()
 
 set(_CMAKE_FOLDER ${CMAKE_FOLDER})
 set(CMAKE_FOLDER Mohses)
@@ -29,37 +45,7 @@ add_subdirectory(tcp-bridge)
 add_subdirectory(physiology-manager)
 set(CMAKE_FOLDER ${_CMAKE_FOLDER})
 
-if (TARGET create_distribution_bundle)
-  ###############################################################################
-  # Add modules to the dep list for our fixup target
-  # You likely need to add on project to stage for every executable you would like
-  # to stage (AKA move dep DLLs to the run folder for debugging.
-  ################################################################################
- 
-  if(TARGET  mohses_module_manager ) 
-    add_dependencies(create_distribution_bundle mohses_module_manager)
-  endif( )
-  if( TARGET  mohses_physiology_manager )
-    add_dependencies(create_distribution_bundle mohses_physiology_manager)
-  endif()
-  if(TARGET mohses_rest_adapter )
-    add_dependencies(create_distribution_bundle mohses_rest_adapter)
-  endif()
-  if(TARGET mohses_simulation_manager )
-    add_dependencies(create_distribution_bundle mohses_simulation_manager)
-  endif()
-  if(TARGET  mohses_tcp_bridge)
-    add_dependencies(create_distribution_bundle mohses_tcp_bridge)
-  endif()
-endif()
-
-set(OUTPUT_PREFIX "${CMAKE_INSTALL_PREFIX}")
-foreach(OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
-      string(TOUPPER _${OUTPUTCONFIG} OUTPUTCONFIG_UPPER)
-      list(APPEND FIXUP_DEFINES " -D CMAKE_ARCHIVE_OUTPUT_DIRECTORY${OUTPUTCONFIG_UPPER}=${OUTPUT_PREFIX}}/lib")
-      list(APPEND FIXUP_DEFINES " -D CMAKE_LIBRARY_OUTPUT_DIRECTORY${OUTPUTCONFIG_UPPER}=${OUTPUT_PREFIX}}/lib")
-      list(APPEND FIXUP_DEFINES " -D CMAKE_RUNTIME_OUTPUT_DIRECTORY${OUTPUTCONFIG_UPPER}=${OUTPUT_PREFIX}}/bin")
-endforeach()
+find_package(Python QUIET)
 
 #Add Triple Dection as needed
 if ( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64"  AND CMAKE_SYSTEM_NAME STREQUAL "Linux")
@@ -69,32 +55,101 @@ elseif( CMAKE_SYSTEM_PROCESSOR STREQUAL "armv8" )
 endif()
 
 string(REPLACE ";" "\;" pp "${CMAKE_PREFIX_PATH}")
-
-if ( NOT CMAKE_CROSSCOMPILING )
-install(CODE 
-"
-message(STATUS \"Post Install Bundle Fixing\")
-execute_process(COMMAND
-    ${CMAKE_COMMAND} 
-    ${FIXUP_DEFINES}
-    -D ROOT_PROJECT_NAME=\"Biogears\"
-    -D CMAKE_INSTALL_RPATH=\"\$ORIGIN\"
-    -D CMAKE_SYSTEM_NAME=${CMAKE_SYSTEM_NAME}
-    -D CMAKE_SYSTEM_PROCESSOR={CMAKE_SYSTEM_PROCESSOR}
-    -D PROJECT_SOURCE_DIR=${PROJECT_SOURCE_DIR}
-    -D PLATFORM_TRIPLE=${triple}
-    -D CMAKE_BINARY_DIR=${CMAKE_BINARY_DIR}
-    -D CMAKE_PREFIX_PATH=${pp}
-    -D CMAKE_RUNTIME_PATH=${RUNTIME_PATH}
-    -D CMAKE_EXECUTABLE_SUFFIX=${CMAKE_EXECUTABLE_SUFFIX}
-    -D CMAKE_ARCHIVE_OUTPUT_DIRECTORY=${OUTPUT_PREFIX}/lib
-    -D CMAKE_LIBRARY_OUTPUT_DIRECTORY=${OUTPUT_PREFIX}/lib
-    -D CMAKE_RUNTIME_OUTPUT_DIRECTORY=${OUTPUT_PREFIX}/bin
-    -D CMAKE_INSTALL_CONFIG_NAME=$<CONFIG> 
-    -P \"${CMAKE_SOURCE_DIR}/cmake/fixup_bundle.cmake\"
-    VERBATIM
-    )
-"
-)
-
+if (TARGET create_distribution_bundle)
+  ###############################################################################
+  # Add modules to the dep list for our fixup target
+  # You likely need to add on project to stage for every executable you would like
+  # to stage (AKA move dep DLLs to the run folder for debugging.
+  ################################################################################
+ 
+  if(TARGET  mohses_module_manager ) 
+    add_dependencies(create_distribution_bundle mohses_module_manager)
+    if ( Python_FOUND)
+      install(CODE 
+      "
+      message(STATUS \"Post Install Bundle Fixing\")
+      execute_process(COMMAND
+          ${Python_EXECUTABLE}
+          ${CMAKE_SOURCE_DIR}/scripts/fixup_bundle.py
+           $<$<TARGET_EXISTS:mohses_module_manager>:$<TARGET_FILE_DIR:mohses_module_manager>/$<TARGET_FILE_NAME:mohses_module_manager>>
+          --hints ${triple}
+          --dirs ${pp}
+          --outdir ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}
+          )
+      "
+      )
+    endif()
+  endif( )
+  if( TARGET  mohses_physiology_manager )
+    add_dependencies(create_distribution_bundle mohses_physiology_manager)
+    if ( Python_FOUND)
+      install(CODE 
+      "
+      message(STATUS \"Post Install Bundle Fixing\")
+      execute_process(COMMAND
+          ${Python_EXECUTABLE}
+          ${CMAKE_SOURCE_DIR}/scripts/fixup_bundle.py
+           $<$<TARGET_EXISTS:mohses_physiology_manager>:$<TARGET_FILE_DIR:mohses_physiology_manager>/$<TARGET_FILE_NAME:mohses_physiology_manager>>
+          --hints ${triple}
+          --dirs ${pp}
+          --outdir ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}
+          )
+      "
+      )
+    endif()
+  endif()
+  if(TARGET mohses_rest_adapter )
+    add_dependencies(create_distribution_bundle mohses_rest_adapter)
+    if ( Python_FOUND)
+      install(CODE 
+      "
+      message(STATUS \"Post Install Bundle Fixing\")
+      execute_process(COMMAND
+          ${Python_EXECUTABLE}
+          ${CMAKE_SOURCE_DIR}/scripts/fixup_bundle.py
+           $<$<TARGET_EXISTS:mohses_rest_adapter>:$<TARGET_FILE_DIR:mohses_rest_adapter>/$<TARGET_FILE_NAME:mohses_rest_adapter>>
+          --hints ${triple}
+          --dirs ${pp}
+          --outdir ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}
+          )
+      "
+      )
+    endif()
+  endif()
+  if(TARGET mohses_simulation_manager )
+    add_dependencies(create_distribution_bundle mohses_simulation_manager)
+    if ( Python_FOUND)
+      install(CODE 
+      "
+      message(STATUS \"Post Install Bundle Fixing\")
+      execute_process(COMMAND
+          ${Python_EXECUTABLE}
+          ${CMAKE_SOURCE_DIR}/scripts/fixup_bundle.py
+           $<$<TARGET_EXISTS:mohses_simulation_manager>:$<TARGET_FILE_DIR:mohses_simulation_manager>/$<TARGET_FILE_NAME:mohses_simulation_manager>>
+          --hints ${triple}
+          --dirs ${pp}
+          --outdir ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}
+          )
+      "
+      )
+    endif()
+  endif()
+  if(TARGET  mohses_tcp_bridge)
+    add_dependencies(create_distribution_bundle mohses_tcp_bridge)
+    if ( Python_FOUND)
+      install(CODE 
+      "
+      message(STATUS \"Post Install Bundle Fixing\")
+      execute_process(COMMAND
+          ${Python_EXECUTABLE}
+          ${CMAKE_SOURCE_DIR}/scripts/fixup_bundle.py
+           $<$<TARGET_EXISTS:mohses_tcp_bridge>:$<TARGET_FILE_DIR:mohses_tcp_bridge>/$<TARGET_FILE_NAME:mohses_tcp_bridge>>
+          --hints ${triple}
+          --dirs ${pp}
+          --outdir ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}
+          )
+      "
+      )
+    endif()
+  endif()
 endif()
