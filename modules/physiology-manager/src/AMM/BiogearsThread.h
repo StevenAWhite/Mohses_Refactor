@@ -124,7 +124,7 @@ class EventHandler;
 
 class BiogearsThread {
 public:
-  explicit BiogearsThread(const std::string& stateFile);
+  explicit BiogearsThread(const std::string& stateFile, const std::string& biogears_runtime_dir);
 
   ~BiogearsThread();
 

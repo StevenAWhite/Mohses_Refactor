@@ -10,6 +10,11 @@ using namespace tinyxml2;
 #define strcasecmp _stricmp
 #endif
 
+/// This module's path to the config file.
+constexpr char const * physiology_manager_amm = "/pe_manager_amm.xml";
+constexpr char const * physiology_manager_configuration = "/pe_manager_configuration.xml";
+constexpr char const * physiology_manager_capabilities = "/pe_manager_capabilities.xml"; 
+
 std::string get_filename_date(void)
 {
   time_t now;
@@ -29,13 +34,34 @@ std::string get_filename_date(void)
 std::map<std::string, std::string> config;
 
 namespace AMM {
-PhysiologyEngineManager::PhysiologyEngineManager()
+PhysiologyEngineManager::PhysiologyEngineManager(std::string dds_config_path, std::string biogears_resource_path)
 {
   static plog::ColorConsoleAppender<plog::TxtFormatter> consoleAppender;
 
-  stateFile = "./states/StandardMale@0s.xml";
-  patientFile = "./patients/StandardMale.xml";
+  
+  if ( !std::filesystem::exists( biogears_resource_path)){
+    biogears_resource_path+= biogears_resource_path + "/biogears";
+    if ( !std::filesystem::exists( biogears_resource_path)){
+      biogears_resource_path="./";
+    }
+  }
 
+  biogears_runtime = biogears_resource_path+"/";
+  stateFile = "states/StandardMale@0s.xml";
+  patientFile = "patients/StandardMale.xml";
+
+  std::string resource_path = dds_config_path;
+  if ( !std::filesystem::exists( resource_path + physiology_manager_amm )){
+    resource_path += "/config";
+  }
+
+  std::cout << "biogears_resource_path=" << biogears_runtime + stateFile << std::endl;
+  std::cout << "dds_config_path=" << resource_path + physiology_manager_amm << std::endl;
+  m_mgr = new DDSManager<PhysiologyEngineManager>( resource_path + physiology_manager_amm );
+  m_DDS_Configuration = Utility::read_file_to_string( resource_path + physiology_manager_configuration );
+  m_DDS_Capabilities  = Utility::read_file_to_string( resource_path + physiology_manager_capabilities );
+ 
+  // Initialize everything we'll need to listen for 
   m_mgr->InitializeTick();
   m_mgr->InitializeCommand();
   m_mgr->InitializeInstrumentData();
@@ -83,8 +109,7 @@ void PhysiologyEngineManager::PublishOperationalDescription()
   od.serial_number("1.0.0");
   od.module_id(m_uuid);
   od.module_version("1.0.0");
-  const std::string capabilities = Utility::read_file_to_string("config/pe_manager_capabilities.xml");
-  od.capabilities_schema(capabilities);
+  od.capabilities_schema(m_DDS_Capabilities);
   od.description();
   m_mgr->WriteOperationalDescription(od);
 }
@@ -98,8 +123,7 @@ void PhysiologyEngineManager::PublishConfiguration()
   mc.timestamp(ms);
   mc.module_id(m_uuid);
   mc.name(moduleName);
-  const std::string configuration = Utility::read_file_to_string("config/pe_manager_configuration.xml");
-  mc.capabilities_configuration(configuration);
+  mc.capabilities_configuration(m_DDS_Configuration);
   m_mgr->WriteModuleConfiguration(mc);
 }
 
@@ -393,7 +417,7 @@ void PhysiologyEngineManager::InitializeBiogears()
   if (!running) {
     LOG_INFO << "Initializing Biogears thread";
     m_mutex.lock();
-    m_pe = new BiogearsThread("logs/biogears.log");
+    m_pe = new BiogearsThread("logs/biogears.log", biogears_runtime);
     m_mutex.unlock();
 
     if (m_pe == nullptr) {
@@ -907,8 +931,8 @@ void PhysiologyEngineManager::OnNewCommand(Command& cm, SampleInfo_t* info)
       authoringMode = false;
       LOG_INFO << "Loading state.  Setting state file to " << value.substr(loadPrefix.size());
       std::string holdStateFile = stateFile;
-      stateFile = "./states/" + value.substr(loadPrefix.size()) + "." + stateFilePrefix;
-      std::ifstream infile(stateFile);
+      stateFile = "states/" + value.substr(loadPrefix.size()) + "." + stateFilePrefix;
+      std::ifstream infile(biogears_runtime+stateFile);
       if (!infile.good()) {
         LOG_ERROR << "State file does not exist: " << stateFile;
         stateFile = holdStateFile;
@@ -925,8 +949,8 @@ void PhysiologyEngineManager::OnNewCommand(Command& cm, SampleInfo_t* info)
       authoringMode = true;
       LOG_INFO << "Loading patient.  Setting patient file to " << value.substr(loadPatient.size());
       std::string holdPatientFile = patientFile;
-      patientFile = "./patients/" + value.substr(loadPatient.size()) + "." + patientFilePrefix;
-      std::ifstream infile(patientFile);
+      patientFile = "patients/" + value.substr(loadPatient.size()) + "." + patientFilePrefix;
+      std::ifstream infile(biogears_runtime+patientFile);
       if (!infile.good()) {
         LOG_ERROR << "Patient file does not exist: " << patientFile;
         patientFile = holdPatientFile;
@@ -942,9 +966,9 @@ void PhysiologyEngineManager::OnNewCommand(Command& cm, SampleInfo_t* info)
 
       authoringMode = false;
       LOG_INFO << "Loading scenario.  Setting scenario file to " << value.substr(loadScenarioFile.size());
-      scenarioFile = "./Scenarios/" + value.substr(loadScenarioFile.size()) + ".xml";
+      scenarioFile = "Scenarios/" + value.substr(loadScenarioFile.size()) + ".xml";
       LOG_INFO << "Scenario file is " << scenarioFile;
-      std::ifstream infile(scenarioFile);
+      std::ifstream infile(biogears_runtime+scenarioFile);
       if (!infile.good()) {
         LOG_ERROR << "Scenario file does not exist: " << scenarioFile;
       }
@@ -952,7 +976,7 @@ void PhysiologyEngineManager::OnNewCommand(Command& cm, SampleInfo_t* info)
 
       LOG_INFO << "Initializing Biogears thread to call LoadScenarioFile";
       m_mutex.lock();
-      m_pe = new BiogearsThread("logs/biogears.log");
+      m_pe = new BiogearsThread("logs/biogears.log", biogears_runtime);
       m_mutex.unlock();
 
       if (m_pe == nullptr) {
@@ -1006,8 +1030,8 @@ void PhysiologyEngineManager::OnNewModuleConfiguration(AMM::ModuleConfiguration&
       authoringMode = false;
       LOG_INFO << "Loading state.  Setting state file to " << it->second;
       std::string holdStateFile = stateFile;
-      stateFile = "./states/" + it->second;
-      std::ifstream infile(stateFile);
+      stateFile = "states/" + it->second;
+      std::ifstream infile(biogears_runtime+stateFile);
       if (!infile.good()) {
         LOG_ERROR << "State file does not exist: " << stateFile;
         stateFile = holdStateFile;

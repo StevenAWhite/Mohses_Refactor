@@ -19,11 +19,12 @@ namespace AMM {
 
     class PhysiologyEngineManager {
     public:
-        PhysiologyEngineManager();
+        PhysiologyEngineManager(std::string dds_config_path = "./", std::string biogears_resource_path="./");
 
         virtual ~PhysiologyEngineManager();
 
         BiogearsThread *m_pe;
+        std::string biogears_runtime;
         std::string stateFile;
         std::string patientFile;
         std::string scenarioFile;
@@ -108,8 +109,11 @@ namespace AMM {
     protected:
         AMM::UUID m_uuid;
         std::string moduleName = "AMM_PhysiologyEngine";
-        std::string configFile = "config/pe_manager_amm.xml";
-        AMM::DDSManager<AMM::PhysiologyEngineManager> *m_mgr = new DDSManager<AMM::PhysiologyEngineManager>(configFile);
+        
+        std::string m_DDS_Configuration = "";
+        std::string m_DDS_Capabilities  = "";
+
+        AMM::DDSManager<AMM::PhysiologyEngineManager> *m_mgr = nullptr;
 
         std::mutex m_mutex;
 

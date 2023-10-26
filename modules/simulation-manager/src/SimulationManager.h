@@ -17,7 +17,7 @@ namespace AMM {
     class SimulationManager {
 
     public:
-        SimulationManager();
+        SimulationManager(std::string dds_config_path = "./", std::string biogears_resource_path="./");
 
         // TODO:
         // Remove doWriteTopic.
@@ -57,8 +57,11 @@ namespace AMM {
         AMM::UUID m_uuid;
 
         std::string moduleName = "AMM_SimulationManager";
-        std::string configFile = "config/sim_manager_amm.xml";
-        DDSManager<SimulationManager> *m_mgr = new DDSManager<SimulationManager>(configFile);
+        
+        std::string m_DDS_Configuration = "";
+        std::string m_DDS_Capabilities  = "";
+        
+        DDSManager<SimulationManager> *m_mgr = nullptr;
 
         int m_tickCount = 0;
         int m_sampleRate = 50;

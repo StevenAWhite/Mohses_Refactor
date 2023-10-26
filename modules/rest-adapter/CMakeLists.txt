@@ -67,7 +67,7 @@ if (MOHSES_BUILD_REST_ADAPTER AND NOT WIN32)
     ) 
 
     set(MODULE_TARGET_NAME mohses_rest_adapter)
-    set(MODULE_ARGUMENTS "")
+    set(MODULE_ARGUMENTS " --configs=${MOHSES_RUNTIME_DIR}/config")
     install(TARGETS ${MODULE_TARGET_NAME} RUNTIME DESTINATION bin)
     if(NOT WIN32)
       configure_file(${CMAKE_SOURCE_DIR}/etc/supervisor/module.conf.in

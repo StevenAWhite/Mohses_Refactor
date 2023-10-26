@@ -4,7 +4,7 @@ include(GNUInstallDirs)
 
 
 if(NOT MOHSES_RUNTIME_DIR)
-  set(MOHSES_RUNTIME_DIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}")
+     set(MOHSES_RUNTIME_DIR "${CMAKE_INSTALL_PREFIX}/share/mohses")
   if(NOT WIN32)
      if(CMAKE_INSTALL_PREFIX MATCHES "^/usr(/.*)?$")
         set(MOHSES_RUNTIME_DIR "/opt/mohses/"   )

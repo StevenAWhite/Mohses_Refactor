@@ -21,6 +21,7 @@ struct Configuration {
   bool autostart = false;
   bool logging = false;
 
+  std::string biogears_directory= "./";
   std::string runtime_directory = "";
   std::string dds_directory = "./";
 } config;
@@ -151,8 +152,9 @@ int main(int argc, char* argv[])
        ("daemon,d", bool_switch()->default_value(false), "Run in daemon mode for service design.")
        ("autostart,a", bool_switch()->default_value(false), "Starts module-manager immeditally.")
        ("version,v", bool_switch()->default_value(false), "version")
-       ("configs", value<std::string>(), "Path to required resource files"),
-       ("directory", "-C", value<std::string>(), "Path to required resource files");
+       ("configs", value<std::string>(), "Path to required resource files")
+       ("resources", value<std::string>(), "Path to required resource files")
+       ("C", value<std::string>(), "Change runtime directory before continuing");
 
     options_description all_options;
     all_options.add(desc);
@@ -177,8 +179,11 @@ int main(int argc, char* argv[])
     if (vm.count("configs")) {
       config.dds_directory = vm["configs"].as<std::string>();
     }
-    if (vm.count("directory")) {
-      config.runtime_directory = vm["directory"].as<std::string>();
+    if (vm.count("resources")) {
+      config.biogears_directory= vm["resources"].as<std::string>();
+    }
+    if (vm.count("C")) {
+      config.runtime_directory = vm["C"].as<std::string>();
       try {
         std::filesystem::current_path(config.runtime_directory);
       } catch (std::filesystem::filesystem_error) {
@@ -195,7 +200,7 @@ int main(int argc, char* argv[])
     return (static_cast<int>(ExecutionErrors::UNKNOWN));
   }
 
-  auto* pe = new AMM::PhysiologyEngineManager();
+  auto* pe = new AMM::PhysiologyEngineManager(config.dds_directory, config.biogears_directory);
   pe->SetLogging(config.logging);
   std::this_thread::sleep_for(std::chrono::milliseconds(250));
 
@@ -215,7 +220,6 @@ int main(int argc, char* argv[])
   }
 
   pe->Shutdown();
-
   LOG_INFO << "Exiting.";
 
   return 0;

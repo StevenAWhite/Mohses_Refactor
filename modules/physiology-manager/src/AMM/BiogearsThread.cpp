@@ -92,10 +92,11 @@ std::map<std::string, double (BiogearsThread::*)()> BiogearsThread::nodePathTabl
  *
  * @param logFile biogears log file
  */
-BiogearsThread::BiogearsThread(const std::string& logFile)
+BiogearsThread::BiogearsThread(const std::string& logFile, const std::string& biogears_runtime)
 {
   try {
-    m_pe = std::make_unique<BioGearsEngine>("biogears.log");
+
+    m_pe = std::make_unique<BioGearsEngine>("biogears.log", biogears_runtime);
     bg = dynamic_cast<BioGears*>(m_pe.get());
   } catch (std::exception& e) {
     LOG_ERROR << "Error starting engine: " << e.what();

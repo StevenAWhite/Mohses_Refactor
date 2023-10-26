@@ -1,11 +1,28 @@
 #include "SimulationManager.h"
 
-using namespace std;
-using namespace std::chrono;
+#include <filesystem>
+
+/// This module's path to the config file.
+constexpr char const * simulation_manager_amm = "/sim_manager_amm.xml";
+constexpr char const * simulation_manager_configuration = "/sim_manager_configuration.xml";
+constexpr char const * simulation_manager_capabilities = "/sim_manager_capabilities.xml"; 
+
+using std::chrono::milliseconds;
 
 namespace AMM {
-SimulationManager::SimulationManager() {
+SimulationManager::SimulationManager(std::string dds_config_path, std::string biogears_resource_path) {
 
+   std::string resource_path = dds_config_path;
+   if ( !std::filesystem::exists( resource_path + simulation_manager_amm )){
+     resource_path += "/config";
+   }
+   std::cout << "ASDA" << resource_path + simulation_manager_amm << std::endl;
+   m_mgr = new DDSManager<SimulationManager>( resource_path + simulation_manager_amm );
+   m_DDS_Configuration = Utility::read_file_to_string( resource_path + simulation_manager_configuration );
+   m_DDS_Capabilities  = Utility::read_file_to_string( resource_path + simulation_manager_capabilities );
+   
+    
+   // Initialize everything we'll need to listen for 
    m_mgr->InitializeTick();
    m_mgr->InitializeSimulationControl();
    m_mgr->InitializeOperationalDescription();
@@ -34,8 +51,7 @@ void SimulationManager::PublishOperationalDescription() {
    od.serial_number("1.0.0");
    od.module_id(m_uuid);
    od.module_version("1.0.0");
-   const std::string capabilities = Utility::read_file_to_string("config/sim_manager_capabilities.xml");
-   od.capabilities_schema(capabilities);
+   od.capabilities_schema(m_DDS_Capabilities);
    od.description(
       "The Simulation Manager is a core software module that drives the simulation by publishing "
       "simulation ticks at a frequency of 50 Hz.  It operates as a simulation state engine, "
@@ -45,12 +61,11 @@ void SimulationManager::PublishOperationalDescription() {
 
    void SimulationManager::PublishConfiguration() {
       AMM::ModuleConfiguration mc;
-      auto ms = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+      auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
       mc.timestamp(ms);
       mc.module_id(m_uuid);
       mc.name(moduleName);
-      const std::string configuration = Utility::read_file_to_string("config/sim_manager_configuration.xml");
-      mc.capabilities_configuration(configuration);
+      mc.capabilities_configuration(m_DDS_Configuration);
       m_mgr->WriteModuleConfiguration(mc);
    }
 
@@ -65,7 +80,7 @@ void SimulationManager::PublishOperationalDescription() {
 
          if (doWriteTopic) {
             AMM::SimulationControl simControl;
-            auto ms = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+            auto ms = std::chrono::duration_cast<milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
             simControl.timestamp(ms);
             simControl.type(AMM::ControlType::RUN);
             m_mgr->WriteSimulationControl(simControl);
@@ -85,7 +100,7 @@ void SimulationManager::PublishOperationalDescription() {
 
          if (doWriteTopic) {
             AMM::SimulationControl simControl;
-            auto ms = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+            auto ms = std::chrono::duration_cast<milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
             simControl.timestamp(ms);
             simControl.type(AMM::ControlType::HALT);
             m_mgr->WriteSimulationControl(simControl);
@@ -106,7 +121,7 @@ void SimulationManager::PublishOperationalDescription() {
 
       if (doWriteTopic) {
          AMM::SimulationControl simControl;
-         auto ms = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+         auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
          simControl.timestamp(ms);
          simControl.type(AMM::ControlType::RESET);
          m_mgr->WriteSimulationControl(simControl);
@@ -120,7 +135,7 @@ void SimulationManager::PublishOperationalDescription() {
 
       if (doWriteTopic) {
          AMM::SimulationControl simControl;
-         auto ms = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+         auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
          simControl.timestamp(ms);
          simControl.type(AMM::ControlType::SAVE);
          m_mgr->WriteSimulationControl(simControl);
@@ -168,12 +183,12 @@ void SimulationManager::PublishOperationalDescription() {
    int SimulationManager::GetSampleRate() { return m_sampleRate; }
 
    void SimulationManager::TickLoop() {
-      using frames = duration<int64_t, ratio<1, 50>>;
-      auto nextFrame = system_clock::now();
+      using frames = std::chrono::duration<int64_t, std::ratio<1, 50>>;
+      auto nextFrame = std::chrono::system_clock::now();
       auto lastFrame = nextFrame - frames{1};
 
       while (m_runThread) {
-         this_thread::sleep_until(nextFrame);
+         std::this_thread::sleep_until(nextFrame);
          m_mutex.lock();
          AMM::Tick tickInstance;
          tickInstance.frame(m_tickCount++);

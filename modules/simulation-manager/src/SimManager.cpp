@@ -178,7 +178,7 @@ int main(int argc, char *argv[]) {
 
 
    LOG_INFO << "Simulation Manager starting";
-   AMM::SimulationManager simManager;
+   AMM::SimulationManager simManager(config.dds_directory, config.runtime_directory);
    simManager.SetSampleRate(config.sampleRate);
 
    std::this_thread::sleep_for(std::chrono::milliseconds(250));
